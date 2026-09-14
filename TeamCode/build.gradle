@@ -1,4 +1,16 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = 'https://repo.dairy.foundation/releases' }
+    }
+    dependencies {
+        classpath 'dev.frozenmilk:Load:0.3.1'
+    }
+}
+
 apply plugin: 'com.android.application'
+apply plugin: 'dev.frozenmilk.sinister.sloth.load'
 
 //
 // build.gradle in TeamCode
@@ -24,6 +36,40 @@ android {
     }
 }
 
+repositories {
+    maven { url = 'https://repo.dairy.foundation/releases' }
+    maven { url = 'https://maven.brott.dev/' }
+    maven {
+        url = 'https://jitpack.io'
+        content { includeGroup 'com.github.StateFactory-Dev' }
+    }
+}
+
+// Slothboard provides the original FTC Dashboard classes.
+configurations.configureEach {
+    exclude group: 'com.acmerobotics.dashboard'
+}
+
 dependencies {
     implementation project(':FtcRobotController')
+
+    // Sloth + Slothboard
+    implementation 'dev.frozenmilk.sinister:Sloth:0.3.1'
+    implementation 'com.acmerobotics.slothboard:dashboard:0.3.1+0.6.0'
+
+    // Pedro 3
+    implementation 'com.pedropathing:revhub:3.0.0'
+    implementation 'com.pedropathing:tuning:1.0.0'
+    implementation 'com.pedropathing:telemetry:1.0.0'
+
+    // NextFTC v2
+    implementation 'dev.nextftc.v2:robot:0.2.0'
+    implementation 'dev.nextftc.v2:hardware:0.2.0'
+    implementation 'dev.nextftc.v2:control:0.2.0'
+    implementation 'com.pedropathing.ivy:core:1.1.1'
+
+    // State factory + marrow
+    implementation 'com.github.StateFactory-Dev:StateFactory:0.3.9'
+    implementation 'com.skeletonarmyftc.marrow:core:1.1.2'
+
 }
