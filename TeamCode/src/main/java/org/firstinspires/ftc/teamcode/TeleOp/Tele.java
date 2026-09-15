@@ -22,10 +22,10 @@ public class Tele extends OpMode {
         Scheduler.reset();
         Trigger.Companion.getDefaultEventLoop().clear();
         NextMotor.Companion.getMotorEventLoop().clear();
+
         intake = new Intake();
-        intake.stop().schedule();
-        Scheduler.execute();
-        NextMotor.Companion.getMotorEventLoop().poll();
+        stopIntake();
+
         follower = Constants.create(hardwareMap);
         follower.setPose(Pose.zero());
     }
@@ -37,27 +37,40 @@ public class Tele extends OpMode {
 
     @Override
     public void loop() {
-        follower.manual(-gamepad1.left_stick_y, -gamepad1.left_stick_x,
+                follower.manual(
+                -gamepad1.left_stick_y,
+                -gamepad1.left_stick_x,
                 -gamepad1.right_stick_x);
         follower.update();
         Trigger.Companion.getDefaultEventLoop().poll();
-        Scheduler.execute();
-        NextMotor.Companion.getMotorEventLoop().poll();
+        updateCommandsAndMotors();
     }
 
     @Override
     public void stop() {
         Trigger.Companion.getDefaultEventLoop().clear();
         Scheduler.reset();
+
         if (intake != null) {
-            intake.stop().schedule();
-            Scheduler.execute();
-            NextMotor.Companion.getMotorEventLoop().poll();
+            stopIntake();
         }
         NextMotor.Companion.getMotorEventLoop().clear();
+
         if (follower != null) {
             follower.stop();
             follower.update();
         }
+    }
+
+
+
+    private void stopIntake() {
+        intake.stop().schedule();
+        updateCommandsAndMotors();
+    }
+
+    private void updateCommandsAndMotors() {
+        Scheduler.execute();
+        NextMotor.Companion.getMotorEventLoop().poll();
     }
 }
