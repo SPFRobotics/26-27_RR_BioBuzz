@@ -17,6 +17,22 @@ plugins {
     id 'com.android.library' version '8.13.2' apply false
 }
 
+def localAppData = System.getenv('LOCALAPPDATA')
+def oneDriveFolders = ['OneDrive', 'OneDriveConsumer', 'OneDriveCommercial']
+        .collect { System.getenv(it) }.findAll { it }
+def checkoutPath = rootDir.canonicalFile.toPath()
+def insideOneDrive = oneDriveFolders.any {
+    checkoutPath.startsWith(new File(it).canonicalFile.toPath())
+}
+if (System.getProperty('os.name').startsWith('Windows') && localAppData && insideOneDrive) {
+    def checkoutId = rootDir.canonicalPath.toLowerCase(Locale.ROOT).digest('SHA-256').take(12)
+    def localBuildRoot = new File(localAppData, "FTC/gradle-builds/${rootProject.name}-${checkoutId}")
+    allprojects { currentProject ->
+        def modulePath = currentProject.path == ':' ? 'root' : "modules/${currentProject.path.substring(1).replace(':', '/')}"
+        currentProject.layout.buildDirectory.set(new File(localBuildRoot, modulePath))
+    }
+}
+
 // This is now required because aapt2 has to be downloaded from the
 // google() repository beginning with version 3.2 of the Android Gradle Plugin
 allprojects {
