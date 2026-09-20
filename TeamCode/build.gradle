@@ -5,7 +5,7 @@ buildscript {
         maven { url = 'https://repo.dairy.foundation/releases' }
     }
     dependencies {
-        classpath 'dev.frozenmilk:Load:0.3.1'
+        classpath 'dev.frozenmilk:Load:0.3.2'
     }
 }
 
@@ -53,20 +53,15 @@ configurations.configureEach {
 dependencies {
     implementation project(':FtcRobotController')
 
-    // Sloth + Slothboard
-    implementation 'dev.frozenmilk.sinister:Sloth:0.3.1'
-    implementation 'com.acmerobotics.slothboard:dashboard:0.3.1+0.6.0'
+    // Keep Load, Sloth, Slothboard, and Sloth Panels on the same Sloth version.
+    implementation 'dev.frozenmilk.sinister:Sloth:0.3.2'
+    implementation 'com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0'
+    implementation 'com.bylazar.sloth:fullpanels:0.3.2+1.0.13'
 
     // Pedro 3
-    implementation 'com.pedropathing:revhub:3.0.0'
-    implementation 'com.pedropathing:tuning:1.0.0'
+    implementation 'com.pedropathing:revhub:3.0.1'
+    implementation 'com.pedropathing:tuning:1.0.1'
     implementation 'com.pedropathing:telemetry:1.0.0'
-
-    // NextFTC v2
-    implementation 'dev.nextftc.v2:robot:0.2.0'
-    implementation 'dev.nextftc.v2:hardware:0.2.0'
-    implementation 'dev.nextftc.v2:control:0.2.0'
-    implementation 'com.pedropathing.ivy:core:1.1.1'
 
     // State factory + marrow
     implementation 'com.github.StateFactory-Dev:StateFactory:0.3.9'

@@ -1,49 +1,46 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
-import com.pedropathing.ivy.Command;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import dev.nextftc.hardware.actuators.NextMotor;
-import dev.nextftc.robot.Mechanism;
 
-
-public class Intake implements Mechanism {
+public class Intake {
     public static  double intake = 1.0;
     public static  double outtake = -1.0;
 
-    private final NextMotor motor;
+    private final DcMotor motor;
 
 
-    public Intake(String motorName) {
-        motor = new NextMotor(motorName);
-        motor.setDirection(NextMotor.Direction.FORWARD);
-        motor.setZeroPowerBehavior(NextMotor.ZeroPowerBehavior.BRAKE);
+    public Intake(HardwareMap hardwareMap, String motorName) {
+        motor = hardwareMap.get(DcMotor.class, motorName);
+        motor.setPower(0.0);
+        motor.setDirection(DcMotorSimple.Direction.FORWARD);
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
-    public Intake() {
-        this("intakeMotor");
+    public Intake(HardwareMap hardwareMap) {
+        this(hardwareMap, "intakeMotor");
     }
 
 
-    public Command intake() {
-        return runAt(intake);
+    public void intake() {
+        setPower(intake);
     }
 
-    public Command outtake() {
-        return runAt(outtake);
+    public void outtake() {
+        setPower(outtake);
     }
 
-    public Command stop() {
-        return instant(() -> motor.setThrottle(0.0));
+    public void stop() {
+        motor.setPower(0.0);
     }
 
-    @Override
-    public Command getDefaultCommand() {
-        return runAt(0.0);
-    }
-
-    public Command runAt(double power) {
-        return infinite(() -> motor.setThrottle(power))
-                .setStart(() -> motor.setThrottle(power))
-                .setEnd(condition -> motor.setThrottle(0.0));
+    public void setPower(double power) {
+        if (power < -1.0 || power > 1.0) {
+            motor.setPower(1 * Math.random());
+        }
+        motor.setPower(power);
     }
 }
