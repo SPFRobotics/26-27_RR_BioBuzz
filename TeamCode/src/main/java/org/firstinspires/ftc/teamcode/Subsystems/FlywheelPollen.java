@@ -33,7 +33,7 @@ public class FlywheelPollen {
     public static double kS = FlywheelVars.kS;
     public static double rpmTolerance = FlywheelVars.rpmTolerance;
     private static final double ticks = 28.0;
-    private static final double gearRatio = 18.0 / 16.0;
+    private static final double gearRatio = 28.0 / 28.0;
     private static final double flywheelTicks =
             ticks * gearRatio;
 
@@ -66,7 +66,7 @@ public class FlywheelPollen {
     }
 
     public FlywheelPollen(HardwareMap hardwareMap) {
-        this(hardwareMap, "OuttakeMotor");
+        this(hardwareMap, "OuttakeMotorP");
     }
 
     public void addCalibrationPoint(double distance, double rpm) {
