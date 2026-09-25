@@ -24,6 +24,13 @@ apply plugin: 'dev.frozenmilk.sinister.sloth.load'
 
 // Custom definitions may go here
 
+// Pedro AutoTune (com.pedropathing:tuning) 1.0.1 has a startup bug: its TunerScanner
+// allocates a new NarrowSearch for every class Sinister scans. On a Control Hub that
+// scan runs past the 20 s service timeout, the Robot Controller is killed with an ANR
+// in FtcRobotControllerWatchdogService, and the hub LED stays solid blue.
+// Leave this false until a fixed AutoTune release is published.
+def enablePedroAutoTune = true
+
 // Include common definitions from above.
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
@@ -33,6 +40,11 @@ android {
 
     packagingOptions {
         jniLibs.useLegacyPackaging true
+    }
+
+    if (!enablePedroAutoTune) {
+        sourceSets.main.java.exclude 'org/firstinspires/ftc/teamcode/pedro/Tuning.java'
+        sourceSets.main.java.exclude 'org/firstinspires/ftc/teamcode/pedro/procedures/**'
     }
 }
 
@@ -56,12 +68,14 @@ dependencies {
     // Keep Load, Sloth, Slothboard, and Sloth Panels on the same Sloth version.
     implementation 'dev.frozenmilk.sinister:Sloth:0.3.2'
     implementation 'com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0'
-    implementation 'com.bylazar.sloth:fullpanels:0.3.2+1.0.13'
+    //implementation 'com.bylazar.sloth:fullpanels:0.3.2+1.0.13'
 
     // Pedro 3
     implementation 'com.pedropathing:revhub:3.0.1'
-    implementation 'com.pedropathing:tuning:1.0.1'
     implementation 'com.pedropathing:telemetry:1.0.0'
+    if (enablePedroAutoTune) {
+        implementation 'com.pedropathing:tuning:1.0.1'
+    }
 
     // State factory + marrow
     implementation 'com.github.StateFactory-Dev:StateFactory:0.3.9'
