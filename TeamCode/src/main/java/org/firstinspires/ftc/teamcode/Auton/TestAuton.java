@@ -10,7 +10,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
-@Autonomous(name = "Test Auton", group = "Pedro")
+@Autonomous(name = "Test Auton", group = "Auton")
+
 public class TestAuton extends OpMode {
     private final Paths paths = new Paths();
     private Follower follower;
@@ -51,8 +52,6 @@ public class TestAuton extends OpMode {
             follower.update();
         }
     }
-
-
 
     public static class Paths {
 
