@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-//@TeleOp(name = "Arcade Drive")
+@TeleOp(name = "Arcade Drive")
 public class Arcade extends LinearOpMode {
 
     private DcMotor LeftWheel;

@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-//@TeleOp(name = "Tank Drive")
+@TeleOp(name = "Tank Drive")
 public class Tank extends LinearOpMode {
 
     private DcMotor LeftWheel;
@@ -45,11 +45,11 @@ public class Tank extends LinearOpMode {
  */
 
 
-            double drive = gamepad1.left_stick_x;
-            double turn  =  gamepad1.right_stick_y;
+            double drive = gamepad1.right_stick_x;
+            double turn  =  gamepad1.left_stick_y;
 
-            double leftPower  = (drive + turn) * 1;
-            double rightPower = (drive - turn) * 1;
+            double leftPower  = (drive + turn) * 0.5;
+            double rightPower = (drive - turn) *0.5;
 
             LeftWheel.setPower(-leftPower);
             RightWheel.setPower(-rightPower);
