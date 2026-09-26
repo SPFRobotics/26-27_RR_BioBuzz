@@ -58,17 +58,17 @@ public class FlywheelPIDTuner extends OpMode {
     @Override
     public void start() {
         enabled = false;
-        previousA = gamepad1.a;
+        previousA = gamepad1.dpad_up;
         stopWheel();
     }
 
     @Override
     public void loop() {
-        if (gamepad1.a && !previousA) {
+        if (gamepad1.dpad_up && !previousA) {
             enabled = !enabled;
         }
-        previousA = gamepad1.a;
-        if (gamepad1.b) {
+        previousA = gamepad1.dpad_up;
+        if (gamepad1.dpad_down) {
             enabled = false;
         }
 

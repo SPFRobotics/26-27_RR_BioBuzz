@@ -16,11 +16,11 @@ public class FlywheelPollen {
     @Config
     public static class FlywheelVars{
 
-        public static double kP = 0.00983;
+        public static double kP = 0.0043;
         public static double kI = 0.0;
         public static double kD = 0.000001;
-        public static double kV = 0.000380;
-        public static double kS = 0.135;
+        public static double kV = 0.00042493;
+        public static double kS = 0.079;
         public static double rpmTolerance = 100.0;
 
     }
