@@ -16,7 +16,7 @@ public class FlywheelNectar {
     @Config
     public static class FlywheelVarsNectar{
 
-        public static double kP = 0.00983;
+        public static double kP = 0.0097;
         public static double kI = 0.0;
         public static double kD = 0.000001;
         public static double kV = 0.000353;
