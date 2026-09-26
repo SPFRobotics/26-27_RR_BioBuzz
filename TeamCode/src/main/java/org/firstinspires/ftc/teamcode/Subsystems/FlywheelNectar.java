@@ -16,11 +16,11 @@ public class FlywheelNectar {
     @Config
     public static class FlywheelVarsNectar{
 
-        public static double kP = 0.00983;
+        public static double kP = 0.0097;
         public static double kI = 0.0;
         public static double kD = 0.000001;
-        public static double kV = 0.000380;
-        public static double kS = 0.135;
+        public static double kV = 0.000353;
+        public static double kS = 0.04;
         public static double rpmTolerance = 100.0;
 
     }
@@ -56,7 +56,7 @@ public class FlywheelNectar {
     public FlywheelNectar(HardwareMap hardwareMap, String motorName) {
         motor = hardwareMap.get(DcMotorEx.class, motorName);
         motor.setPower(0.0);
-        motor.setDirection(DcMotorSimple.Direction.REVERSE);
+        motor.setDirection(DcMotorSimple.Direction.FORWARD);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -110,7 +110,12 @@ public void runAtDistance(double distance) {
     }
 
     public double getRPM() {
-        return motor.getVelocity() * 60.0 / flywheelTicks;
+        return getEncoderVelocity() * 60.0 / flywheelTicks;
+    }
+
+    private double getEncoderVelocity() {
+        // The nectar encoder reports the opposite sign from the wheel's forward rotation.
+        return -motor.getVelocity();
     }
 
     public double getTargetRPM() {
@@ -129,7 +134,7 @@ public void runAtDistance(double distance) {
         }
 
         double targetTicksPerSecond = targetRPM * flywheelTicks / 60.0;
-        double error = targetTicksPerSecond - motor.getVelocity();
+        double error = targetTicksPerSecond - getEncoderVelocity();
         double dt = controlTimer.seconds();
         controlTimer.reset();
         double derivative = hasPreviousError && dt > 0.0
