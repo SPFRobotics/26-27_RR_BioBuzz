@@ -14,39 +14,38 @@ import org.firstinspires.ftc.teamcode.Subsystems.FlywheelPollen;
 @Utility
 public class FlywheelPIDTuner extends OpMode {
 
-    public static String motorName = "";
-    public static boolean useNectar = false;
-    public static double targetRPM = 3000.0;
+    public static String pollenMotorName = "OuttakeMotorP";
+    public static String nectarMotorName = "OuttakeMotorN";
+    public static boolean enablePollen = true;
+    public static boolean enableNectar = true;
+    public static double pollenTargetRPM = 3000.0;
+    public static double nectarTargetRPM = 3000.0;
 
     private FlywheelPollen pollen;
     private FlywheelNectar nectar;
-    private DcMotorEx motor;
-    private boolean tuningNectar;
-    private String selectedMotorName;
-    private boolean enabled;
-    private boolean previousA;
+    private DcMotorEx pollenMotor;
+    private DcMotorEx nectarMotor;
+    private String selectedPollenMotorName;
+    private String selectedNectarMotorName;
 
     @Override
     public void init() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        tuningNectar = useNectar;
-        if (motorName == null || motorName.trim().isEmpty()) {
-            if (tuningNectar) {
-                selectedMotorName = "OuttakeMotorN";
-            } else {
-                selectedMotorName = "OuttakeMotorP";
-            }
-        } else {
-            selectedMotorName = motorName.trim();
+        selectedPollenMotorName = resolveMotorName(pollenMotorName, "OuttakeMotorP");
+        selectedNectarMotorName = resolveMotorName(nectarMotorName, "OuttakeMotorN");
+        pollenMotor = hardwareMap.get(DcMotorEx.class, selectedPollenMotorName);
+        nectarMotor = hardwareMap.get(DcMotorEx.class, selectedNectarMotorName);
+        if (pollenMotor == nectarMotor) {
+            throw new IllegalArgumentException("Pollen and nectar must use different motors.");
         }
-        motor = hardwareMap.get(DcMotorEx.class, selectedMotorName);
-        if (tuningNectar) {
-            nectar = new FlywheelNectar(hardwareMap, selectedMotorName);
-        } else {
-            pollen = new FlywheelPollen(hardwareMap, selectedMotorName);
-        }
-        enabled = false;
+        pollen = new FlywheelPollen(hardwareMap, selectedPollenMotorName);
+        nectar = new FlywheelNectar(hardwareMap, selectedNectarMotorName);
         stopWheel();
+    }
+
+    private String resolveMotorName(String configuredName, String defaultName) {
+        return configuredName == null || configuredName.trim().isEmpty()
+                ? defaultName : configuredName.trim();
     }
 
     @Override
@@ -56,22 +55,14 @@ public class FlywheelPIDTuner extends OpMode {
     }
 
     @Override
-    public void start() {
-        enabled = false;
-        previousA = gamepad1.dpad_up;
-        stopWheel();
+    public void loop() {
+        showInstructions();
+        enablePollen = updateWheel(false, enablePollen, pollenTargetRPM);
+        enableNectar = updateWheel(true, enableNectar, nectarTargetRPM);
+        telemetry.update();
     }
 
-    @Override
-    public void loop() {
-        if (gamepad1.dpad_up && !previousA) {
-            enabled = !enabled;
-        }
-        previousA = gamepad1.dpad_up;
-        if (gamepad1.dpad_down) {
-            enabled = false;
-        }
-
+    private boolean updateWheel(boolean tuningNectar, boolean enabled, double requestedRPM) {
         double p = tuningNectar ? FlywheelNectar.FlywheelVarsNectar.kP : FlywheelPollen.FlywheelVars.kP;
         double i = tuningNectar ? FlywheelNectar.FlywheelVarsNectar.kI : FlywheelPollen.FlywheelVars.kI;
         double d = tuningNectar ? FlywheelNectar.FlywheelVarsNectar.kD : FlywheelPollen.FlywheelVars.kD;
@@ -79,7 +70,6 @@ public class FlywheelPIDTuner extends OpMode {
         double s = tuningNectar ? FlywheelNectar.FlywheelVarsNectar.kS : FlywheelPollen.FlywheelVars.kS;
         double tolerance = tuningNectar ? FlywheelNectar.FlywheelVarsNectar.rpmTolerance
                 : FlywheelPollen.FlywheelVars.rpmTolerance;
-        double requestedRPM = targetRPM;
         boolean valid = Double.isFinite(requestedRPM) && requestedRPM >= 0.0
                 && Double.isFinite(p) && Double.isFinite(i) && Double.isFinite(d)
                 && Double.isFinite(v) && Double.isFinite(s)
@@ -113,22 +103,25 @@ public class FlywheelPIDTuner extends OpMode {
         }
 
         double actualRPM = tuningNectar ? nectar.getRPM() : pollen.getRPM();
-        showInstructions();
-        telemetry.addData("Enabled", enabled);
-        telemetry.addData("Valid settings", valid);
-        telemetry.addData("Target RPM", commandedRPM);
-        telemetry.addData("Actual RPM", actualRPM);
-        telemetry.addData("Error RPM", commandedRPM - actualRPM);
-        telemetry.addData("Motor power", motor.getPower());
-        telemetry.addData("At speed", commandedRPM > 0.0
+        DcMotorEx motor = tuningNectar ? nectarMotor : pollenMotor;
+        String label = tuningNectar ? "Nectar " : "Pollen ";
+        telemetry.addData(label + "Enabled", enabled);
+        telemetry.addData(label + "Valid settings", valid);
+        telemetry.addData(label + "Target RPM", commandedRPM);
+        telemetry.addData(label + "Actual RPM", actualRPM);
+        telemetry.addData(label + "Error RPM", commandedRPM - actualRPM);
+        telemetry.addData(label + "Motor power", motor.getPower());
+        telemetry.addData(label + "At speed", commandedRPM > 0.0
                 && Math.abs(commandedRPM - actualRPM) <= tolerance);
-        telemetry.update();
+        return enabled;
     }
 
     private void showInstructions() {
-        telemetry.addData("Motor", selectedMotorName);
-        telemetry.addData("Dashboard gains", tuningNectar ? "FlywheelVarsNectar" : "FlywheelVars");
-        telemetry.addLine("Gamepad 1: A toggles flywheel; B stops. Dashboard: FlywheelPIDTuner.targetRPM.");
+        telemetry.addData("Pollen motor", selectedPollenMotorName);
+        telemetry.addData("Nectar motor", selectedNectarMotorName);
+        telemetry.addLine("Dashboard: FlywheelPIDTuner.enablePollen / enableNectar start or stop each wheel.");
+        telemetry.addLine("Dashboard RPM: FlywheelPIDTuner.pollenTargetRPM / nectarTargetRPM.");
+        telemetry.addLine("Gains: FlywheelVars / FlywheelVarsNectar.");
     }
 
     private void stopWheel() {
@@ -142,7 +135,8 @@ public class FlywheelPIDTuner extends OpMode {
 
     @Override
     public void stop() {
-        enabled = false;
+        enablePollen = false;
+        enableNectar = false;
         stopWheel();
     }
 }
