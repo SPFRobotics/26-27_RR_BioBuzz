@@ -1,160 +1,183 @@
-# BioBuzz pollen detection on Limelight
+# BIOBUZZ pollen vision — Limelight 3A + Pedro 3
 
-`biobuzz_pollen.py` is a standalone Python SnapScript for yellow BioBuzz pollen.
-Image processing runs on the Limelight. The Control Hub receives the results.
-The file uses the documented `runPipeline(image, llrobot)` interface and only
-OpenCV and NumPy, which Limelight supplies. No pip install is needed on the camera.
+This replaces the previous Python SnapScript with the neural pollen detector from
+[FTC Teams 5193 and 10653](https://github.com/SASApantheon5193/biobuzz-pollen-vision).
+The model runs on the Limelight; Java selects a group and commands the existing
+Pedro follower. Main TeleOp is not modified and no driving OpMode is registered.
 
-The yellow HSV values are initial tuning values, not calibration from a real ball.
-The script detects round yellow candidates, selects the largest accepted blob,
-and draws a green circle around it. Blue outlines show other accepted candidates.
-This is color/shape detection: a similar-looking yellow object can be a false match.
-It does not identify nectar, estimate distance, or control any motors.
+Source revision: `842b880eebfd5b7bec93a88bdf996abbc3eed0d8`.
+The targeting and chase algorithms are adapted from upstream `PollenChase.java`;
+the two diagnostic OpModes are copied with package and guaranteed camera-cleanup
+changes. The upstream MIT notice is in [UPSTREAM_LICENSE](../UPSTREAM_LICENSE).
+The model's CC BY 4.0 dataset credits and author-reported results are preserved in
+[MODEL.md](model/MODEL.md). Only the CPU model is included here, not the Coral model
+mentioned in the upstream model document. The PNG training graph is copied unchanged.
 
-## Install the script
+## Camera setup
 
-1. Connect the Limelight to your laptop and open its web interface using Limelight
-   Hardware Manager or [limelight.local:5801](http://limelight.local:5801).
-2. Choose an unused pipeline slot and set its type to Python SnapScript/custom Python.
-   Name it `BioBuzz Pollen`. Record the slot number for your Java code.
-3. Paste the complete contents of `biobuzz_pollen.py` into the Python script editor.
-   This is Python source, not an exported pipeline configuration; do not import it
-   into a JSON/pipeline-settings import field. Use the editor's save/apply control
-   if shown by your Limelight OS version.
-4. Begin with a supported low resolution, such as 320x240, and aim at a real ball.
-   Confirm that the preview appears and the script error panel is clear.
-5. Set `SHOW_MASK = True` to tune: yellow-ball pixels should be white, background
-   pixels black. Adjust `HSV_MIN` and `HSV_MAX`, then set `SHOW_MASK = False`.
-   Hue is the color (0-179); saturation is color strength (0-255); value is brightness
-   (0-255). Test different distances and lighting before tightening these limits.
-6. Reconnect the camera to the Control Hub. Configure its hardware name as
-   `limelight`, or use your existing name in Java.
+1. Connect the Limelight 3A to a computer over USB. Open
+   [limelight.local:5801](http://limelight.local:5801) or its USB adapter's camera IP.
+2. Select **pipeline 0**, type **Neural Detector**, runtime **CPU**.
+3. Upload `model/limelight_neural_detector_8bit.tflite` and
+   `model/limelight_neural_detector_labels.txt`.
+4. Set confidence threshold **0.3** (Java filters at **0.5**), exposure **2000**
+   in .01 ms units (**20 ms**), and sensor gain **15**. Save the pipeline.
+5. Configure the robot's Limelight hardware name as **limelight**.
+6. Run **Pollen Detector Test**, group **Vision**, to see the largest confident
+   pollen detection, tx/ty, area, confidence, and latency. It does not initialize motors.
 
-Use consistent exposure and white balance where supported. Too much exposure can
-wash yellow into white; too little can make it fall below the brightness threshold.
+Upstream reports about 11 FPS on the 3A CPU. Polling at 100 Hz does not increase the
+model's frame rate. Adjust exposure to venue lighting; bright but unwashed balls
+worked better in upstream tests. These are starting settings, not measurements
+from this robot. No Python pipeline or Python dependencies are needed.
 
-## Output contract: version 1
+## Reusable API and loop ownership
 
-Read `result.getPythonOutput()` in FTC Java. The array always has eight numbers:
+`PollenVision` owns camera start/update/stop, filters neural results, groups pollen,
+and exposes an immutable `Target` snapshot and `addTelemetry()`.
+`PollenChaseController` accepts that vision instance and an **existing** Pedro 3
+`Follower`. It owns vision polling and the manual drive command while active.
+The OpMode calls `follower.update()` exactly once afterward. Do not also call
+`vision.update()`, `follower.manual()`, or `follower.follow()` in the same loop.
 
-| Index | Meaning | Units / convention |
-| --- | --- | --- |
-| 0 | Ball found | 1=yes, 0=no |
-| 1 | Accepted candidate count | Number of separate accepted blobs in this frame |
-| 2 | Selected center X | -1 at image left, 0 center, +1 at right |
-| 3 | Selected center Y | -1 at image bottom, 0 center, +1 at top |
-| 4 | Selected enclosing-circle diameter | Percent of full image width |
-| 5 | Selected outer contour area | Percent of full image area |
-| 6 | Selected circularity | 0-1 shape measurement; **not detection confidence** |
-| 7 | Output schema version | Always 1 |
+The controller accepts normalized, **unscaled Pedro robot-centric** manual inputs:
+forward positive, strafe left positive, turn counterclockwise positive. Convert
+sticks with `-left_stick_y`, `-left_stick_x`, `-right_stick_x`; the latter two
+negate the upstream right/clockwise convention. Manual scale is applied inside
+the controller. The upstream automatic clockwise turn command is also negated
+inside the controller. Drivetrain names and directions stay in Pedro `Constants`.
 
-No target returns `[0, 0, 0, 0, 0, 0, 0, 1]` and an empty contour; old detections
-are not held. Position is relative to the full image even if ROI is changed.
-Values are image coordinates, not inches, degrees, or robot/field coordinates.
-The count is not guaranteed to equal the true number of balls: touching balls can
-merge into one blob, and partial/hidden balls may be rejected.
-
-Returning the selected contour also enables Limelight's normal `getTx()`, `getTy()`,
-and `getTa()` calculation. These use Limelight's contour/crosshair settings, whereas
-the Python center comes from an enclosing circle. Do not assume those centers or
-area measurements are identical.
-
-## Reading from FTC Java
-
-The following is an integration example, not a standalone OpMode. Add the imports
-and field to your OpMode, initialization to `init()`, and reading to `loop()`.
-Use a slot matching the one selected in the Limelight interface.
+Example fragments for an OpMode already owning `follower` (not a new OpMode):
 
 ```java
-import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.hardware.limelightvision.LLResult;
+import org.firstinspires.ftc.teamcode.Utilities.vision.PollenVision;
+import org.firstinspires.ftc.teamcode.Utilities.vision.PollenChaseController;
 
 // Fields:
-private Limelight3A limelight;
-private static final int POLLEN_PIPELINE = 0; // Set to your actual slot.
+private PollenVision pollenVision;
+private PollenChaseController pollenChase;
 
-// In init():
-limelight = hardwareMap.get(Limelight3A.class, "limelight");
-limelight.pipelineSwitch(POLLEN_PIPELINE);
-limelight.start();
+// In init(), after creating your existing follower:
+PollenVision.Config visionConfig = new PollenVision.Config();
+visionConfig.hardwareName = "limelight";
+visionConfig.pipeline = 0;
+pollenVision = new PollenVision(hardwareMap, visionConfig);
+PollenChaseController.Config chaseConfig = new PollenChaseController.Config();
+chaseConfig.stopArea = 0.14; // Calibrate for your camera and bumper.
+pollenChase = new PollenChaseController(follower, pollenVision, chaseConfig);
 
-// In loop(): reset this decision each loop so old targets cannot persist.
-boolean ballFound = false;
-LLResult result = limelight.getLatestResult();
-if (result != null
-        && result.getPipelineIndex() == POLLEN_PIPELINE
-        && result.getStaleness() < 100 // Starting freshness limit; tune on hardware.
-        && result.isValid()) {
-    double[] data = result.getPythonOutput();
-    if (data != null && data.length == 8 && data[7] == 1.0) {
-        boolean finite = true;
-        for (double value : data) {
-            finite &= !Double.isNaN(value) && !Double.isInfinite(value);
-        }
-        ballFound = finite && data[0] == 1.0;
-        if (ballFound) {
-            telemetry.addData("Pollen count", (int) data[1]);
-            telemetry.addData("Pollen X (-left/+right)", data[2]);
-            telemetry.addData("Pollen Y (-down/+up)", data[3]);
-            telemetry.addData("Diameter (% width)", data[4]);
-            telemetry.addData("Area (% image)", data[5]);
-            telemetry.addData("Circularity", data[6]);
-        }
-    }
-}
-telemetry.addData("Pollen found", ballFound);
+// In start():
+pollenChase.start();
+
+// In loop(), replacing the existing manual command and follower update:
+pollenChase.update(gamepad1.right_bumper,
+        -gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
+follower.update();
+pollenChase.addTelemetry(telemetry);
 telemetry.update();
 
 // In stop():
-if (limelight != null) {
-    limelight.stop();
+try {
+    if (pollenChase != null) pollenChase.stop();
+} finally {
+    // Flush Pedro's stop mode even if camera shutdown throws.
+    if (follower != null) follower.update();
 }
 ```
 
-Start by displaying these values with the robot stationary. For steering, subtract
-the calibrated intake aim point from X and use a limited proportional correction:
-a small error produces a small correction. Verify direction on your drivetrain.
-Camera offset/rotation can change how image directions map to robot movement.
-Only one controller should command the drive motors at a time when using Pedro.
-On invalid/stale results, stop camera-guided motion or enter a deliberate search
-state with a timeout. Confirm collection with an intake sensor if available.
+For vision-only use, call `pollenVision.start()`, `pollenVision.update()` each loop,
+read `getTarget()`, and call `stop()` on shutdown. No follower is required.
+The controller can take over a follower previously following a path; after
+controller shutdown, the caller must explicitly issue the next desired path.
+It never automatically resumes an old path or resets localization.
 
-## Tuning and limits
+## Preserved targeting behavior
 
-- `ROI` chooses where to search. It starts as the full image, because pollen can
-  be on flowers as well as on the floor. Crop only after checking the camera view.
-- Area limits are percentages of the entire image; retune after resolution changes
-  because small shapes and morphology still behave differently at different sizes.
-- Circularity, aspect ratio, and circle fill reject strips and many angular objects.
-  Shadows, holes at the outer edge, and occlusion may also make real balls fail.
-- `REJECT_EDGE_BLOBS` defaults to true. Detection can disappear when a nearby ball
-  leaves the view. Disappearance alone does not mean successful collection.
-- Selection is largest apparent area, with center proximity as a tie-breaker.
-  It is not persistent tracking, and can switch between similarly sized balls.
-- Adjacent balls are not explicitly separated. Test clusters before relying on counts.
-- Distance in inches requires camera/target calibration. Pollen resting on flowers
-  and pollen on the floor cannot share an unqualified floor-plane distance formula.
+Only class `pollen` (case-insensitive), confidence >=0.5, and valid results less
+than 200 ms stale are accepted. Non-finite numeric detections and negative areas
+are additionally rejected. Areas are **image fractions**, unlike `LLResult.getTa()`
+which is a percentage.
 
-## Offline checks
+Single-linkage clustering connects centers within 3.3 average estimated ball
+widths; width is `48 * sqrt(area)` degrees. Aim is area-weighted horizontal center.
+Group score is `count + 8 * largestArea`. Match the previous target within 10°;
+a challenger needs at least 1.25 times its score to replace it. The biggest box
+sets stop distance. This is image-space selection, not physical distance or a
+field coordinate estimate.
 
-With Python, `opencv-python-headless`, and `numpy` installed on a development PC:
+The controller exposes `MANUAL`, `CHASE`, `ARRIVED`, and `NO_TARGET`:
 
-```text
-python -m unittest discover -s TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Utilities/vision/limelight -p "test_*.py" -v
+- Hold right bumper to chase. Releasing it restores manual input immediately.
+- Any manual axis above 0.05 in magnitude overrides chase while held. Chase resumes
+  when sticks return within the deadband and the bumper is still held.
+- Forward power is 0.35 at area <=0.02 and falls linearly to zero at area 0.14.
+- Turn gain is 0.02 per degree, cap 0.30, with a 2° deadband. Above 15° error,
+  forward power is multiplied by 0.3. Automatic strafe remains zero.
+- A lost target retains the last command basis for less than 0.5 seconds, then
+  commands zero. No target at startup also commands zero. An arrived target
+  commands zero translation and rotation.
+- Manual inputs are scaled by 0.5 before Pedro's wheel mixing; combined inputs can
+  produce wheel powers above 0.5, just as with upstream mixing.
+
+Set `PollenVision.Config` and `PollenChaseController.Config` before starting.
+Defaults preserve upstream behavior; `stopArea` must be greater than `farArea`,
+and timeout, gain limits, and grouping settings must remain sensible positive
+values (turn gain may be negated for reversed camera orientation). Stop area is
+camera-dependent: calibrate it before normal use. These commands use Pedro's
+manual mode, not generated paths, and do not operate the intake or flywheels.
+
+## Optional color diagnostic
+
+**Yellow Pollen Test** (Vision group) reads pipeline 1 without drivetrain hardware.
+Set pipeline type Color/Retroreflective, hue 21–33, saturation 170–255, value
+165–255, exposure 600 (.01 ms units), gain 15, erosion/dilation 1/1, minimum area
+0.1%, minimum fullness 60%, and leave W/H ratio wide open. Save the pipeline.
+
+Its distance display uses the upstream calibration `2.39 / sqrt(area)` inches,
+measured on another robot. Check against a tape measure before relying on it.
+Color detection can confuse yellow/orange objects and merges touching balls.
+The chase controller always uses the neural pipeline, not this color fallback.
+
+## Verification and robot acceptance
+
+Run the local tests and compile with:
+
+```sh
+./gradlew :TeamCode:testDebugUnitTest :TeamCode:compileDebugJavaWithJavac
 ```
 
-These generated-image tests cover no target, color rejection, holes, shape filtering,
-selection, count, coordinate signs, ROI, resolution changes, and target disappearance.
-They do not establish real-camera accuracy, Limelight frame rate, or robot behavior.
+Tests exercise class/confidence/freshness filtering, two-dimensional transitive
+clustering, weighted aim, group scoring, hysteresis, target-loss expiration,
+reacquisition, slowing/stopping, manual override, and Pedro command signs.
+They do not establish camera accuracy or real drivetrain behavior.
 
-Validation on September 22, 2026: all nine tests passed on desktop Python 3.12 with
-OpenCV 5.0.0 and NumPy 2.5.3. The script uses standard OpenCV operations available
-in Limelight's documented OpenCV 4.10 environment, but has not been executed on
-the camera. The Java example has not been compiled as an OpMode.
+Hardware acceptance, after a caller integrates the module:
 
-## References
+1. Run the neural diagnostic first. Verify `pollen` boxes and confidence >=0.5.
+2. Verify normal manual drive directions with the existing Pedro configuration.
+3. Place one ball about 4 ft ahead, slightly off-center, in clear space. Hold the
+   bumper and verify turning toward it, slowing, and stopping short of the bumper.
+4. Check left/right targets and calibrate stop area. Check a pair versus a single
+   and similarly scored separated groups for stable selection.
+5. Release the bumper, override with each stick, cover the camera, and verify
+   immediate manual takeover and a stop after target-loss grace expires.
+6. Stop the OpMode and verify motors and camera stop. Hardware results remain
+   unverified until these checks are performed on this robot.
 
-- [BioBuzz game manual](https://ftc-resources.firstinspires.org/ftc/archive/2027/game/cm-html/BIOBUZZ%20Competition%20Manual%20-%20V1.htm): yellow pollen.
-- [Limelight SnapScript interface](https://docs.limelightvision.io/docs/docs-limelight/pipeline-python/snapscript-pipelines).
-- [Limelight FTC API](https://docs.limelightvision.io/docs/docs-limelight/apis/ftc-programming).
-- [Limelight 3A setup](https://docs.limelightvision.io/docs/docs-limelight/getting-started/limelight-3a).
+Note: as upstream, the last accepted result can be reused until its 200 ms
+freshness limit; the 0.5-second grace period starts from its last acceptance.
+The total delay after a frozen camera frame may therefore approach 0.7 seconds.
+
+### Copied asset verification
+
+Verified Git blob SHA-1 values from the pinned upstream tree:
+
+| Asset | Git blob SHA-1 |
+|---|---|
+| CPU model | `17eac987908ec2bf66ba16b938909a393db4c14a` |
+| Labels | `19c1116045ef74179df8cf86162d278c9d4affed` |
+| MODEL.md | `03f4424cb41eb2e199fc2565f561bbb28fd9dabf` |
+| Training graph | `9e6c76ca552da0f4a641b280aa03d63588d9477d` |
+| UPSTREAM_LICENSE | `6e8ffb0585f14a68ab572ddd97a486692676caf4` |
+
+These are Git blob hashes (`git hash-object <file>`), not plain file SHA-1 hashes.

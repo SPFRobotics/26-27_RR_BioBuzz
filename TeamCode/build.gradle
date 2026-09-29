@@ -63,6 +63,8 @@ configurations.configureEach {
 }
 
 dependencies {
+    testImplementation 'junit:junit:4.13.2'
+
     implementation project(':FtcRobotController')
 
     // Keep Load, Sloth, Slothboard, and Sloth Panels on the same Sloth version.
