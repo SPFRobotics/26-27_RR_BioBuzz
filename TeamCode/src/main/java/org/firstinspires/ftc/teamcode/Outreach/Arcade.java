@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 
-@Disabled
+//@Disabled
 @TeleOp(name = "Arcade Drive")
 public class Arcade extends LinearOpMode {
 
@@ -49,13 +49,12 @@ public class Arcade extends LinearOpMode {
             */
 
 
-            double drive = -gamepad1.left_stick_y;
-            double turn = gamepad1.right_stick_x;
+            double turn = gamepad1.left_stick_y;
+            double drive = gamepad1.right_stick_x;
 
             double leftPower = drive + turn;
             double rightPower = drive - turn;
 
-            // Normalize powers if either exceeds 1.0
             double max = Math.max(Math.abs(leftPower), Math.abs(rightPower));
 
             if (max > 1.0) {

@@ -1,27 +1,26 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Utility;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorImpl;
+
+import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 
 @Utility
-@Config
-public class Test extends OpMode {
-
-    DcMotor hi;
-    String motorName = "test";
+public class IntakeTest extends OpMode {
+    Intake intake;
 
     @Override
     public void init() {
-        hi = hardwareMap.get(DcMotor.class, motorName);
+
+        intake = new Intake(hardwareMap);
+
     }
 
     @Override
     public void loop() {
 
-        hi.setPower(1);
+        intake.intake();
 
     }
 }

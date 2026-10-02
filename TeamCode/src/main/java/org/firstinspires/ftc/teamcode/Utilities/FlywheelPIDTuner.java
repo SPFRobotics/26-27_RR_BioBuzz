@@ -18,8 +18,8 @@ public class FlywheelPIDTuner extends OpMode {
     public static String nectarMotorName = "OuttakeMotorN";
     public static boolean enablePollen = true;
     public static boolean enableNectar = true;
-    public static double pollenTargetRPM = 3000.0;
-    public static double nectarTargetRPM = 3000.0;
+    public static double pollenTargetRPM = 2560;
+    public static double nectarTargetRPM = 2650;
 
     private FlywheelPollen pollen;
     private FlywheelNectar nectar;
