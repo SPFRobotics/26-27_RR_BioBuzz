@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -17,29 +18,35 @@ public class Transfer {
     DcMotor transfer;
     Servo blocker;
 
-    public Transfer(HardwareMap hardwareMap, String motorName, String servoName) {
+    CRServo pollen;
+
+    public Transfer(HardwareMap hardwareMap, String motorName, String servoName, String pollenName) {
 
         transfer = hardwareMap.get(DcMotor.class, motorName);
         transfer.setDirection(DcMotor.Direction.FORWARD);
         transfer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         blocker = hardwareMap.get(Servo.class, servoName);
+        pollen = hardwareMap.get(CRServo.class, pollenName);
+
 
     }
 
     public Transfer(HardwareMap hardwareMap)
     {
 
-        this(hardwareMap, "transfer", "blocker");
+        this(hardwareMap, "transfer", "blocker", "pollenTransfer");
     }
 
     public void on(){
 
         transfer.setPower(1);
+        pollen.setPower(1);
 
     }
 
     public void off(){
         transfer.setPower(0);
+        pollen.setPower(0);
     }
 
     public void setPower(double power){
