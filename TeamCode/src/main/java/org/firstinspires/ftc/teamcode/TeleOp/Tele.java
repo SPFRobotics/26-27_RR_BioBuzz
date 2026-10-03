@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Subsystems.FlywheelNectar;
 import org.firstinspires.ftc.teamcode.Subsystems.FlywheelPollen;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
+import org.firstinspires.ftc.teamcode.Subsystems.Transfer;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 @TeleOp(name = "TeleOp", group = "TeleOp")
@@ -17,18 +18,25 @@ private static final Pose TARGET_POSE = new Pose(0, 0); //placeholder
 
     private Follower follower;
     private Intake intake;
+
+    private Transfer transfer;
     private FlywheelPollen pollenWheel;
     private FlywheelNectar nectarWheel;
     private boolean intakeEnabled;
     private boolean flywheelEnabled;
+    private boolean transferEnabled;
+    private boolean blockerClosed;
     private boolean previousIntakeButton;
     private boolean previousFlywheelButton;
+    private boolean previousTransferButton;
+    private boolean previousBlockerButton;
 
     @Override
     public void init() {
         intake = new Intake(hardwareMap);
         pollenWheel = new FlywheelPollen(hardwareMap);
         nectarWheel = new FlywheelNectar(hardwareMap);
+        transfer = new Transfer(hardwareMap);
         stopAll();
 
         follower = Constants.create(hardwareMap);
@@ -39,8 +47,12 @@ private static final Pose TARGET_POSE = new Pose(0, 0); //placeholder
     public void start() {
         intakeEnabled = false;
         flywheelEnabled = false;
+        transferEnabled = false;
+        blockerClosed = true;
         previousIntakeButton = false;
         previousFlywheelButton = false;
+        previousTransferButton = false;
+        previousBlockerButton = false;
         stopAll();
     }
 
@@ -55,6 +67,8 @@ private static final Pose TARGET_POSE = new Pose(0, 0); //placeholder
 
         boolean intakeButton = gamepad1.x;
         boolean flywheelButton = gamepad2.square;
+        boolean transferButton = gamepad2.triangle;
+        boolean blockerButton = gamepad2.circle;
 
         if (intakeButton && !previousIntakeButton) {
             intakeEnabled = !intakeEnabled;
@@ -62,9 +76,28 @@ private static final Pose TARGET_POSE = new Pose(0, 0); //placeholder
         if (flywheelButton && !previousFlywheelButton) {
             flywheelEnabled = !flywheelEnabled;
         }
+        if (transferButton && !previousTransferButton) {
+            transferEnabled = !transferEnabled;
+        }
+        if (blockerButton && !previousBlockerButton) {
+            blockerClosed = !blockerClosed;
+        }
 
         previousIntakeButton = intakeButton;
         previousFlywheelButton = flywheelButton;
+        previousTransferButton = transferButton;
+        previousBlockerButton = blockerButton;
+
+        if (transferEnabled) {
+            transfer.on();
+        } else {
+            transfer.off();
+        }
+        if (blockerClosed) {
+            transfer.block();
+        } else {
+            transfer.release();
+        }
 
         if (intakeEnabled) {
             intake.intake();
@@ -84,6 +117,8 @@ private static final Pose TARGET_POSE = new Pose(0, 0); //placeholder
         nectarWheel.update();
 
         telemetry.addData("Target distance (in)", distance);
+        telemetry.addData("Transfer (Triangle)", transferEnabled ? "On" : "Off");
+        telemetry.addData("Blocker (O)", blockerClosed ? "Closed" : "Open");
         telemetry.addData("pollenWheel target RPM", pollenWheel.getTargetRPM());
         telemetry.addData("pollenWheel actual RPM", pollenWheel.getRPM());
         telemetry.addData("nectarWheel target RPM", nectarWheel.getTargetRPM());
@@ -95,6 +130,8 @@ private static final Pose TARGET_POSE = new Pose(0, 0); //placeholder
     public void stop() {
         intakeEnabled = false;
         flywheelEnabled = false;
+        transferEnabled = false;
+        blockerClosed = true;
         stopAll();
 
         if (follower != null) {
@@ -109,6 +146,10 @@ private static final Pose TARGET_POSE = new Pose(0, 0); //placeholder
     }
 
     private void stopAll() {
+        if (transfer != null) {
+            transfer.off();
+            transfer.block();
+        }
         if (intake != null) {
             intake.stop();
         }
