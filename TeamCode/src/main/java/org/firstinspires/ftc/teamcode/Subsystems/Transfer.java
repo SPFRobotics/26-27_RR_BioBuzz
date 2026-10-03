@@ -48,13 +48,13 @@ public class Transfer {
 
     public void block(){
         blocker.setPosition(TransferConfig.upPos);
-        off();
+        //off();
     }
 
     public void release(){
 
         blocker.setPosition(TransferConfig.downPos);
-        on();
+        //on();
 
     }
 
