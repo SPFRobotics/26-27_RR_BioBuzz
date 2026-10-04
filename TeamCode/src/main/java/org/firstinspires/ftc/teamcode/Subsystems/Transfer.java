@@ -15,16 +15,16 @@ public class Transfer {
         static double downPos = 0;
 
     }
-    DcMotor transfer;
+    DcMotor motor;
     Servo blocker;
 
     CRServo pollen;
 
     public Transfer(HardwareMap hardwareMap, String motorName, String servoName, String pollenName) {
 
-        transfer = hardwareMap.get(DcMotor.class, motorName);
-        transfer.setDirection(DcMotor.Direction.FORWARD);
-        transfer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor = hardwareMap.get(DcMotor.class, motorName);
+        motor.setDirection(DcMotor.Direction.FORWARD);
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         blocker = hardwareMap.get(Servo.class, servoName);
         pollen = hardwareMap.get(CRServo.class, pollenName);
 
@@ -34,23 +34,23 @@ public class Transfer {
     public Transfer(HardwareMap hardwareMap)
     {
 
-        this(hardwareMap, "transfer", "blocker", "pollenTransfer");
+        this(hardwareMap, "motor", "blocker", "pollenTransfer");
     }
 
     public void on(){
 
-        transfer.setPower(1);
+        motor.setPower(1);
         pollen.setPower(1);
 
     }
 
     public void off(){
-        transfer.setPower(0);
+        motor.setPower(0);
         pollen.setPower(0);
     }
 
     public void setPower(double power){
-        transfer.setPower(power);
+        motor.setPower(power);
     }
 
     public void block(){
