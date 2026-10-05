@@ -11,8 +11,8 @@ public class Transfer {
     @Config
     public static class TransferConfig{
 
-        static double upPos = 0.5;
-        static double downPos = 0;
+        static double upPos = 0.25;
+        static double downPos = 0.41;
 
     }
     DcMotor motor;
@@ -34,7 +34,7 @@ public class Transfer {
     public Transfer(HardwareMap hardwareMap)
     {
 
-        this(hardwareMap, "motor", "blocker", "pollenTransfer");
+        this(hardwareMap, "transfer", "blocker", "pollenTransfer");
     }
 
     public void on(){
@@ -56,6 +56,10 @@ public class Transfer {
     public void block(){
         blocker.setPosition(TransferConfig.upPos);
         //off();
+    }
+
+    public void zero(){
+        blocker.setPosition(0);
     }
 
     public void release(){

@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
 public class Intake {
-    public static  double intake = 1.0;
+    public static  double intake = 0.8;
     public static  double outtake = -1.0;
 
     private final DcMotor motor;
