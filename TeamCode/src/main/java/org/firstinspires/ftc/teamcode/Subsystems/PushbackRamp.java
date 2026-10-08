@@ -21,6 +21,7 @@ public class PushbackRamp {
         right = hardwaremap.get(Servo.class, servo2);
 
         right.setDirection(Servo.Direction.REVERSE);
+        left.setDirection(Servo.Direction.FORWARD);
 
     }
 
