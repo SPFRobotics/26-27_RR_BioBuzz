@@ -6,9 +6,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
 public class PushbackRamp {
-    public static double downPosition = 0.0;
+    public static double downPosition = 0.65;
 
-    public static double upPosition = 0.5;
+    public static double upPosition = 0.2;
 
     public static double floatPos = 0.4;
 
@@ -21,6 +21,7 @@ public class PushbackRamp {
         right = hardwaremap.get(Servo.class, servo2);
 
         right.setDirection(Servo.Direction.REVERSE);
+        left.setDirection(Servo.Direction.REVERSE);
         left.setDirection(Servo.Direction.FORWARD);
 
     }
@@ -46,7 +47,8 @@ public class PushbackRamp {
     }
 
     public void floater(){
-        setPos(floatPos);
+        left.setPosition(floatPos);
+        right.setPosition(floatPos);
     }
 
 
