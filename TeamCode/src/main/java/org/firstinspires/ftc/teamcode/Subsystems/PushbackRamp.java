@@ -29,20 +29,24 @@ public class PushbackRamp {
         this(hardwareMap, "pushbackLeft", "pushbackRight");
     }
 
+    public void setPos(double pos) {
+        left.setPosition(pos);
+        right.setPosition(pos);
+    }
+
+
 
     public void down() {
-        left.setPosition(downPosition);
-        right.setPosition(downPosition);
+        setPos(downPosition);
     }
 
     public void up() {
-        left.setPosition(upPosition);
-        right.setPosition(upPosition);
+        setPos(upPosition);
+
     }
 
     public void floater(){
-        left.setPosition(floatPos);
-        right.setPosition(floatPos);
+        setPos(floatPos);
     }
 
 
