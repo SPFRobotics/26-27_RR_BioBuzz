@@ -10,7 +10,7 @@ public class PushbackRamp {
 
     public static double upPosition = 0.2;
 
-    public static double floatPos = 0.4;
+   // public static double floatPos = 0.4;
 
     Servo left;
     Servo right;
@@ -45,12 +45,14 @@ public class PushbackRamp {
         setPos(upPosition);
 
     }
-
+/*
     public void floater(){
         left.setPosition(floatPos);
         right.setPosition(floatPos);
     }
 
+
+ */
 
 
 
