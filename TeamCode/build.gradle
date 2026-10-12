@@ -65,6 +65,7 @@ dependencies {
     // Pedro 3
     implementation 'com.pedropathing:revhub:3.0.1'
     implementation 'com.pedropathing:telemetry:1.0.0'
+    implementation 'com.pedropathing.ivy:pedro:1.1.1'
 
         implementation 'com.pedropathing:tuning:1.0.1'
 
