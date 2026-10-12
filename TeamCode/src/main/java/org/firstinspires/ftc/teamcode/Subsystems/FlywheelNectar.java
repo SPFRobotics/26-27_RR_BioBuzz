@@ -33,7 +33,7 @@ public class FlywheelNectar {
     public static double kS = FlywheelVarsNectar.kS;
     public static double rpmTolerance = FlywheelVarsNectar.rpmTolerance;
     private static final double ticks = 28.0;
-    private static final double gearRatio = 28.0 / 28.0;
+    private static final double gearRatio = 25.0 / 28.0;
     private static final double flywheelTicks =
             ticks * gearRatio;
 
@@ -114,8 +114,7 @@ public void runAtDistance(double distance) {
     }
 
     private double getEncoderVelocity() {
-        // The nectar encoder reports the opposite sign from the wheel's forward rotation.
-        return -motor.getVelocity();
+        return motor.getVelocity();
     }
 
     public double getTargetRPM() {

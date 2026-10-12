@@ -56,7 +56,7 @@ public class FlywheelPollen {
     public FlywheelPollen(HardwareMap hardwareMap, String motorName) {
         motor = hardwareMap.get(DcMotorEx.class, motorName);
         motor.setPower(0.0);
-        motor.setDirection(DcMotorSimple.Direction.REVERSE);
+        motor.setDirection(DcMotorSimple.Direction.FORWARD);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -110,7 +110,11 @@ public void runAtDistance(double distance) {
     }
 
     public double getRPM() {
-        return motor.getVelocity() * 60.0 / flywheelTicks;
+        return getEncoderVelocity() * 60.0 / flywheelTicks;
+    }
+
+    private double getEncoderVelocity() {
+        return -motor.getVelocity();
     }
 
     public double getTargetRPM() {
@@ -129,7 +133,7 @@ public void runAtDistance(double distance) {
         }
 
         double targetTicksPerSecond = targetRPM * flywheelTicks / 60.0;
-        double error = targetTicksPerSecond - motor.getVelocity();
+        double error = targetTicksPerSecond - getEncoderVelocity();
         double dt = controlTimer.seconds();
         controlTimer.reset();
         double derivative = hasPreviousError && dt > 0.0

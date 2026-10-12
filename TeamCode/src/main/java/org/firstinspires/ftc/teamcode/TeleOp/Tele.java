@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Subsystems.FlywheelNectar;
 import org.firstinspires.ftc.teamcode.Subsystems.FlywheelPollen;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
+import org.firstinspires.ftc.teamcode.Subsystems.PushbackRamp;
 import org.firstinspires.ftc.teamcode.Subsystems.Transfer;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
@@ -20,16 +21,19 @@ private static final Pose TARGET_POSE = new Pose(0, 0); //placeholder
     private Intake intake;
 
     private Transfer transfer;
+    private PushbackRamp pushbackRamp;
     private FlywheelPollen pollenWheel;
     private FlywheelNectar nectarWheel;
     private boolean intakeEnabled;
     private boolean flywheelEnabled;
     private boolean transferEnabled;
-    private boolean blockerClosed;
+    private boolean blockerClosed = true;
+    private boolean pushbackRampDown;
     private boolean previousIntakeButton;
     private boolean previousFlywheelButton;
     private boolean previousTransferButton;
     private boolean previousBlockerButton;
+    private boolean previousPushbackRampButton;
 
     @Override
     public void init() {
@@ -37,10 +41,17 @@ private static final Pose TARGET_POSE = new Pose(0, 0); //placeholder
         pollenWheel = new FlywheelPollen(hardwareMap);
         nectarWheel = new FlywheelNectar(hardwareMap);
         transfer = new Transfer(hardwareMap);
+        pushbackRamp = new PushbackRamp(hardwareMap);
         stopAll();
 
         follower = Constants.create(hardwareMap);
         follower.setPose(Pose.zero()); //placeholder
+    }
+
+    @Override
+    public void init_loop() {
+        addControlTelemetry();
+        telemetry.update();
     }
 
     @Override
@@ -49,10 +60,12 @@ private static final Pose TARGET_POSE = new Pose(0, 0); //placeholder
         flywheelEnabled = false;
         transferEnabled = false;
         blockerClosed = true;
+        pushbackRampDown = false;
         previousIntakeButton = false;
         previousFlywheelButton = false;
         previousTransferButton = false;
         previousBlockerButton = false;
+        previousPushbackRampButton = false;
         stopAll();
     }
 
@@ -66,9 +79,10 @@ private static final Pose TARGET_POSE = new Pose(0, 0); //placeholder
         follower.update();
 
         boolean intakeButton = gamepad1.x;
-        boolean flywheelButton = gamepad2.square;
-        boolean transferButton = gamepad2.triangle;
-        boolean blockerButton = gamepad2.circle;
+        boolean flywheelButton = gamepad1.left_bumper;
+        boolean transferButton = gamepad1.y;
+        boolean blockerButton = gamepad1.b;
+        boolean pushbackRampButton = gamepad1.a;
 
         if (intakeButton && !previousIntakeButton) {
             intakeEnabled = !intakeEnabled;
@@ -82,11 +96,15 @@ private static final Pose TARGET_POSE = new Pose(0, 0); //placeholder
         if (blockerButton && !previousBlockerButton) {
             blockerClosed = !blockerClosed;
         }
+        if (pushbackRampButton && !previousPushbackRampButton) {
+            pushbackRampDown = !pushbackRampDown;
+        }
 
         previousIntakeButton = intakeButton;
         previousFlywheelButton = flywheelButton;
         previousTransferButton = transferButton;
         previousBlockerButton = blockerButton;
+        previousPushbackRampButton = pushbackRampButton;
 
         if (transferEnabled) {
             transfer.on();
@@ -97,6 +115,11 @@ private static final Pose TARGET_POSE = new Pose(0, 0); //placeholder
             transfer.block();
         } else {
             transfer.release();
+        }
+        if (pushbackRampDown) {
+            pushbackRamp.down();
+        } else {
+            pushbackRamp.up();
         }
 
         if (intakeEnabled) {
@@ -116,14 +139,24 @@ private static final Pose TARGET_POSE = new Pose(0, 0); //placeholder
         pollenWheel.update();
         nectarWheel.update();
 
+        addControlTelemetry();
         telemetry.addData("Target distance (in)", distance);
-        telemetry.addData("Transfer (Triangle)", transferEnabled ? "On" : "Off");
-        telemetry.addData("Blocker (O)", blockerClosed ? "Closed" : "Open");
         telemetry.addData("pollenWheel target RPM", pollenWheel.getTargetRPM());
         telemetry.addData("pollenWheel actual RPM", pollenWheel.getRPM());
         telemetry.addData("nectarWheel target RPM", nectarWheel.getTargetRPM());
         telemetry.addData("nectarWheel actual RPM", nectarWheel.getRPM());
         telemetry.update();
+    }
+
+    private void addControlTelemetry() {
+        telemetry.addLine("Controller 1 controls (buttons toggle)");
+        telemetry.addData("Left stick", "Drive / strafe");
+        telemetry.addData("Right stick left/right", "Turn");
+        telemetry.addData("X / Square - Intake", intakeEnabled ? "On" : "Off");
+        telemetry.addData("LB / L1 - Flywheels", flywheelEnabled ? "On" : "Off");
+        telemetry.addData("Y / Triangle - Transfer", transferEnabled ? "On" : "Off");
+        telemetry.addData("B / Circle - Blocker", blockerClosed ? "Closed" : "Open");
+        telemetry.addData("A / Cross - Pushback ramp", pushbackRampDown ? "Down" : "Up");
     }
 
     @Override
@@ -132,6 +165,7 @@ private static final Pose TARGET_POSE = new Pose(0, 0); //placeholder
         flywheelEnabled = false;
         transferEnabled = false;
         blockerClosed = true;
+        pushbackRampDown = false;
         stopAll();
 
         if (follower != null) {
@@ -146,6 +180,9 @@ private static final Pose TARGET_POSE = new Pose(0, 0); //placeholder
     }
 
     private void stopAll() {
+        if (pushbackRamp != null) {
+            pushbackRamp.up();
+        }
         if (transfer != null) {
             transfer.off();
             transfer.block();

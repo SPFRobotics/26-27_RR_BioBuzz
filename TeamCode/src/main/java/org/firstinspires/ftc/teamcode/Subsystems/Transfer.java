@@ -11,8 +11,8 @@ public class Transfer {
     @Config
     public static class TransferConfig{
 
-        static double upPos = 0.25;
-        static double downPos = 0.41;
+        static double upPos = 0.17;
+        static double downPos = 0.42;
 
     }
     DcMotor motor;
@@ -22,7 +22,7 @@ public class Transfer {
     public Transfer(HardwareMap hardwareMap, String motorName, String servoName) {
 
         motor = hardwareMap.get(DcMotor.class, motorName);
-        motor.setDirection(DcMotor.Direction.FORWARD);
+        motor.setDirection(DcMotor.Direction.REVERSE);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         blocker = hardwareMap.get(Servo.class, servoName);
 
@@ -37,7 +37,7 @@ public class Transfer {
 
     public void on(){
 
-        motor.setPower(1);
+        motor.setPower(0.8);
 
     }
 
@@ -52,6 +52,11 @@ public class Transfer {
     public void block(){
         blocker.setPosition(TransferConfig.upPos);
         //off();
+    }
+
+    public void blockPos(double pos){
+
+        blocker.setPosition(pos);
     }
 
     public void zero(){
