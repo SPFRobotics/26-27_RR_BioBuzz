@@ -7,7 +7,9 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.Subsystems.PushbackRamp;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 @Autonomous(name = "Test Auton", group = "Auton")
@@ -15,6 +17,7 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 public class TestAuton extends OpMode {
     private final Paths paths = new Paths();
     private Follower follower;
+    PushbackRamp ramp;
     private Path path;
 
     @Override
@@ -22,6 +25,7 @@ public class TestAuton extends OpMode {
         follower = Constants.create(hardwareMap);
         follower.setPose(paths.start);
         path = paths.path1();
+        ramp = new PushbackRamp(hardwareMap);
     }
 
     @Override
@@ -33,6 +37,7 @@ public class TestAuton extends OpMode {
     public void start() {
         follower.setPose(paths.start);
         follower.follow(path);
+        ramp.up();
     }
 
     @Override
@@ -43,6 +48,7 @@ public class TestAuton extends OpMode {
         telemetry.addData("Heading", Math.toDegrees(follower.pose().heading()));
         telemetry.addData("Follower Mode", follower.mode());
         telemetry.update();
+        ramp.up();
     }
 
     @Override

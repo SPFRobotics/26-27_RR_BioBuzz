@@ -46,11 +46,13 @@ public class Tuning {
     public static Procedure threeWheelTuner() {
         return new ThreeWheelTuner();
     }
-
+/*
     @Tuner
     public static Procedure threeWheelIMUTuner() {
         return new ThreeWheelIMUTuner();
     }
+
+ */
 
     @Tuner
     public static Procedure foresightTuner() {
@@ -66,4 +68,6 @@ public class Tuning {
                 hardwareMap -> new PinpointLocalizer(hardwareMap, Constants.localizerConfig),
                 () -> new Foresight(Constants.foresightConfig));
     }
+
+
 }
