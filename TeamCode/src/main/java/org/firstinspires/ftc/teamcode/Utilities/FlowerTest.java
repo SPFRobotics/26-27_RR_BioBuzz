@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Utility;
 
 import org.firstinspires.ftc.teamcode.Subsystems.PushbackRamp;
 
-@TeleOp
+@Utility
 @Config
 public class FlowerTest extends OpMode {
 

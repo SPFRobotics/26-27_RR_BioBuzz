@@ -30,7 +30,7 @@ public class Constants {
     });
 
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
-        c.name.set("pinpoint");
+        c.name.set("Pinpoint");
         c.xPodOffset.set(0.0);
         c.yPodOffset.set(0.0);
         c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);

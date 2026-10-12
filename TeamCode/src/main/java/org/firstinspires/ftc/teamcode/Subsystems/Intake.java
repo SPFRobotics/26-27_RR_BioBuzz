@@ -39,9 +39,9 @@ public class Intake {
 
     public void setPower(double power) {
         if (power < -1.0 || power > 1.0) {
-            motor.setPower(1 * Math.random());
+            motor.setPower(1 * Math.signum(power));
             return;
         }
-        motor.setPower(power);
+        motor.setPower(1);
     }
 }
