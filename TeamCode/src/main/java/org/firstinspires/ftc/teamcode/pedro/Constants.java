@@ -55,7 +55,7 @@ public class Constants {
                 c.headingBrakeCoefficients.set(Vector2D.cartesian(0.0533883770992607, 0.0030849254718464366));
 
                 c.linearBrakeCoefficients.set(Matrix.diag(0.09264987760041885, 0.06816914287114871));
-                c.quadraticBrakeCoefficients.set(Matrix.diag(9.806925604627019E-4, 0.0011384708207048118));
+                c.quadraticBrakeCoefficients.set(Matrix.diag(0.0009806925604627019, 0.0011384708207048118));
 
                 c.maxAchievableForwardVelocity.set(69.09768796761995);
                 c.maxAchievableStrafeVelocity.set(55.411480755482614);

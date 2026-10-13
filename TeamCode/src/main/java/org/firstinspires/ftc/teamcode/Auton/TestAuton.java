@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Subsystems.PushbackRamp;
+import org.firstinspires.ftc.teamcode.Utilities.AutoCache;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 @Autonomous(name = "Test Auton", group = "Auton")
@@ -17,11 +18,14 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 public class TestAuton extends OpMode {
     private final Paths paths = new Paths();
     private Follower follower;
+    private boolean autonomousStarted;
     PushbackRamp ramp;
     private Path path;
 
     @Override
     public void init() {
+        AutoCache.clear();
+        autonomousStarted = false;
         follower = Constants.create(hardwareMap);
         follower.setPose(paths.start);
         path = paths.path1();
@@ -36,6 +40,7 @@ public class TestAuton extends OpMode {
     @Override
     public void start() {
         follower.setPose(paths.start);
+        autonomousStarted = true;
         follower.follow(path);
         ramp.up();
     }
@@ -43,6 +48,7 @@ public class TestAuton extends OpMode {
     @Override
     public void loop() {
         follower.update();
+        AutoCache.save(follower.pose());
         telemetry.addData("X", follower.pose().x());
         telemetry.addData("Y", follower.pose().y());
         telemetry.addData("Heading", Math.toDegrees(follower.pose().heading()));
@@ -56,6 +62,9 @@ public class TestAuton extends OpMode {
         if (follower != null) {
             follower.stop();
             follower.update();
+            if (autonomousStarted) {
+                AutoCache.save(follower.pose());
+            }
         }
     }
 

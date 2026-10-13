@@ -23,6 +23,8 @@ import org.firstinspires.ftc.teamcode.Subsystems.FlywheelPollen;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 import org.firstinspires.ftc.teamcode.Subsystems.PushbackRamp;
 import org.firstinspires.ftc.teamcode.Subsystems.Transfer;
+import org.firstinspires.ftc.teamcode.Utilities.AutoCache;
+import org.firstinspires.ftc.teamcode.Utilities.LedLights;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 @Config
@@ -45,6 +47,7 @@ public class BlueTwoTip extends LinearOpMode {
     private PushbackRamp pushbackRamp;
     private FlywheelPollen pollenWheel;
     private FlywheelNectar nectarWheel;
+    private LedLights leds;
     private String stage = "Ready";
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
@@ -104,6 +107,8 @@ public class BlueTwoTip extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        AutoCache.clear();
+        boolean autonomousStarted = false;
         Scheduler.reset();
         try {
             intake = new Intake(hardwareMap);
@@ -111,6 +116,7 @@ public class BlueTwoTip extends LinearOpMode {
             pushbackRamp = new PushbackRamp(hardwareMap);
             pollenWheel = new FlywheelPollen(hardwareMap);
             nectarWheel = new FlywheelNectar(hardwareMap);
+            leds = new LedLights(hardwareMap);
             stopMechanisms();
 
             follower = Constants.create(hardwareMap);
@@ -121,10 +127,13 @@ public class BlueTwoTip extends LinearOpMode {
             if (isStopRequested()) {
                 return;
             }
+            autonomousStarted = true;
             schedule(autoRoutine());
 
             while (opModeIsActive()) {
                 follower.update();
+                leds.cycleColors(10);
+                AutoCache.save(follower.pose());
                 Scheduler.execute();
                 pollenWheel.update();
                 nectarWheel.update();
@@ -150,6 +159,9 @@ public class BlueTwoTip extends LinearOpMode {
             if (follower != null) {
                 follower.stop();
                 follower.update();
+                if (autonomousStarted) {
+                    AutoCache.save(follower.pose());
+                }
             }
         }
     }
@@ -229,4 +241,5 @@ public class BlueTwoTip extends LinearOpMode {
     public Path park() {
         return Paths.line(returnFromFlower, park).constant(park);
     }
-}
+    }
+

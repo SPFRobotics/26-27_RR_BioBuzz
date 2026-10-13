@@ -7,6 +7,8 @@ import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.Utilities.AutoCache;
+
 import static com.pedropathing.api.Paths.line;
 
 @Autonomous(name = "Pedro Auto", group = "Pedro")
@@ -16,10 +18,13 @@ public class PedroAuto extends OpMode {
     private final Pose endPose = poses.of(48, 24, 0);
 
     private Follower follower;
+    private boolean autonomousStarted;
     private Path path;
 
     @Override
     public void init() {
+        AutoCache.clear();
+        autonomousStarted = false;
         follower = Constants.create(hardwareMap);
         follower.setPose(startPose);
         path = line(startPose, endPose).linear(startPose, endPose);
@@ -34,12 +39,14 @@ public class PedroAuto extends OpMode {
     @Override
     public void start() {
         follower.setPose(startPose);
+        autonomousStarted = true;
         follower.follow(path);
     }
 
     @Override
     public void loop() {
         follower.update();
+        AutoCache.save(follower.pose());
         reportPose();
     }
 
@@ -48,6 +55,9 @@ public class PedroAuto extends OpMode {
         if (follower != null) {
             follower.stop();
             follower.update();
+            if (autonomousStarted) {
+                AutoCache.save(follower.pose());
+            }
         }
     }
 

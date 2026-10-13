@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.FlywheelPollen;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 import org.firstinspires.ftc.teamcode.Subsystems.PushbackRamp;
 import org.firstinspires.ftc.teamcode.Subsystems.Transfer;
+import org.firstinspires.ftc.teamcode.Utilities.AutoCache;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 @TeleOp(name = "TeleOp", group = "TeleOp")
@@ -45,11 +46,13 @@ private static final Pose TARGET_POSE = new Pose(0, 0); //placeholder
         stopAll();
 
         follower = Constants.create(hardwareMap);
-        follower.setPose(Pose.zero()); //placeholder
+        Pose startPose = AutoCache.consume();
+        follower.setPose(startPose != null ? startPose : Pose.zero());
     }
 
     @Override
     public void init_loop() {
+        follower.update();
         addControlTelemetry();
         telemetry.update();
     }
