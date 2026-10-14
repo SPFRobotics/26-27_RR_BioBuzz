@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 @TeleOp(name = "TeleOp", group = "TeleOp")
 public class Tele extends OpMode {
 //coords in inches imperial better than metric RAHHHH
-private static final Pose TARGET_POSE = new Pose(0, 0); //placeholder
+private static final Pose TARGET_POSE = new Pose(0, 0);
 
     private Follower follower;
     private Intake intake;
