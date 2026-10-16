@@ -47,36 +47,62 @@ public class BlueTwoTip extends LinearOpMode {
     private PushbackRamp pushbackRamp;
     private FlywheelPollen pollenWheel;
     private FlywheelNectar nectarWheel;
-    private LedLights leds;
+    //private LedLights leds;
     private String stage = "Ready";
 
-    private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose start = poseFactory.of(85.2792, 133.401, 90);
-    private final Pose intakeCorner = poseFactory.of(134.3658, 133.408, 0.0081);
-    private final Pose travelThroughHive = poseFactory.of(81.0731, 21.2102, 180);
-    private final Pose travelThroughHiveControl1 = poseFactory.of(72.0752, 131.433, 0);
-    private final Pose travelThroughHiveSegment1Heading = poseFactory.of(81.0731, 21.2102, 0);
-    private final Pose travelThroughHiveSegment3Start = poseFactory.of(81.0731, 21.2102, 86.5814);
-    private final Pose travelThroughHiveSegment3End = poseFactory.of(81.0731, 21.2102, 180);
-    private final Pose runToFlowerStart = poseFactory.of(81.0731, 21.2102, 180);
-    private final Pose runToFlower = poseFactory.of(93.6955, 14.5892, 270);
-    private final Pose runToFlowerControl1 = poseFactory.of(105.0053, 59.2547, 0);
-    private final Pose returnFromFlowerStart = poseFactory.of(93.6955, 14.5892, 270);
-    private final Pose returnFromFlower = poseFactory.of(81.0022, 21.5447, 180);
-    private final Pose returnFromFlowerControl1 = poseFactory.of(105.9419, 59.8149, 0);
-    private final Pose park = poseFactory.of(133.8792, 21.7693, 180);
+
+        private final PoseFactory poseFactory = PoseFactory.degrees();
+
+        private final Pose start = poseFactory.of(92.6552, 132.4481, 0);
+        private final Pose intakeCorner = poseFactory.of(132.9365, 133.588, 0);
+        private final Pose travelThroughHiveStart = poseFactory.of(132.9365, 133.588, 0);
+        private final Pose travelThroughHive = poseFactory.of(80.7555, 20.8926, 180);
+        private final Pose travelThroughHiveControl1 = poseFactory.of(115.2819, 17.7931, 180);
+        private final Pose runToFlowerStart = poseFactory.of(80.7555, 20.8926, 180);
+        private final Pose runToFlower = poseFactory.of(93.6955, 14.5892, 270);
+        private final Pose runToFlowerControl1 = poseFactory.of(105.0053, 59.2547, 0);
+        private final Pose returnFromFlowerStart = poseFactory.of(93.6955, 14.5892, 270);
+        private final Pose returnFromFlower = poseFactory.of(81.0022, 21.5447, 180);
+        private final Pose returnFromFlowerControl1 = poseFactory.of(104.9466, 58.8196, 0);
+        private final Pose park = poseFactory.of(133.8792, 21.7693, 180);
+
+        public Path intakeCorner() {
+            return Paths.line(start, intakeCorner).constant(intakeCorner);
+        }
+
+        public Path travelThroughHive() {
+            return Paths.curve(travelThroughHiveStart, travelThroughHiveControl1, travelThroughHive).linear(travelThroughHiveStart, travelThroughHive);
+        }
+
+        public Path runToFlower() {
+            return Paths.curve(runToFlowerStart, runToFlowerControl1, runToFlower).linear(runToFlowerStart, runToFlower);
+        }
+
+        public Path returnFromFlower() {
+            return Paths.curve(returnFromFlowerStart, returnFromFlowerControl1, returnFromFlower).linear(returnFromFlowerStart, returnFromFlower);
+        }
+
+        public Path park() {
+            return Paths.line(returnFromFlower, park).constant(park);
+        }
+
 
     // Autonomous routine
     public Command autoRoutine() {
         return sequential(
                 instant(() -> follower.hold(start)),
                 shoot("Shoot 4 preload", preloadShootMs),
+                step("intake Off", () -> {
+                    intake.stop();
+                    waitMs(1000);
+                }),
                 step("Intake corner", () -> {
                     transfer.block();
                     intake.intake();
                 }),
                 followToEnd(intakeCorner()),
+                //followToEnd(strafe()),
                 step("Travel through hive", () -> {
                     intake.stop();
                     transfer.block();
@@ -116,7 +142,7 @@ public class BlueTwoTip extends LinearOpMode {
             pushbackRamp = new PushbackRamp(hardwareMap);
             pollenWheel = new FlywheelPollen(hardwareMap);
             nectarWheel = new FlywheelNectar(hardwareMap);
-            leds = new LedLights(hardwareMap);
+           // leds = new LedLights(hardwareMap);
             stopMechanisms();
 
             follower = Constants.create(hardwareMap);
@@ -132,7 +158,7 @@ public class BlueTwoTip extends LinearOpMode {
 
             while (opModeIsActive()) {
                 follower.update();
-                leds.cycleColors(10);
+                //leds.cycleColors(10);
                 AutoCache.save(follower.pose());
                 Scheduler.execute();
                 pollenWheel.update();
@@ -208,10 +234,10 @@ public class BlueTwoTip extends LinearOpMode {
             transfer.block();
         }
         if (pollenWheel != null) {
-            pollenWheel.stop();
+            //pollenWheel.stop();
         }
         if (nectarWheel != null) {
-            nectarWheel.stop();
+            //nectarWheel.stop();
         }
     }
 
@@ -222,8 +248,9 @@ public class BlueTwoTip extends LinearOpMode {
         }
     }
 
+    /*
     public Path intakeCorner() {
-        return Paths.line(start, intakeCorner).tangent();
+        return Paths.line(start, intakeCorner).constant(intakeCorner);
     }
 
     public Path travelThroughHive() {
@@ -241,5 +268,6 @@ public class BlueTwoTip extends LinearOpMode {
     public Path park() {
         return Paths.line(returnFromFlower, park).constant(park);
     }
+    */
     }
 
