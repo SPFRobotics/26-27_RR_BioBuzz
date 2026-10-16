@@ -49,8 +49,8 @@ public class Arcade extends LinearOpMode {
             */
 
 
-            double turn = gamepad1.left_stick_y;
-            double drive = gamepad1.right_stick_x;
+            double turn = gamepad1.left_stick_y/2;
+            double drive = gamepad1.right_stick_x/2;
 
             double leftPower = drive + turn;
             double rightPower = drive - turn;

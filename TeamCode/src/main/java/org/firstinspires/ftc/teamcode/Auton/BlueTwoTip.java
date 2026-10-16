@@ -31,14 +31,13 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 @Autonomous(name = "B- TwoTip", group = "BlueAuto")
 public class BlueTwoTip extends LinearOpMode {
 
-    // Starting RPMs match FlywheelPIDTuner; tune RPMs and feed times on the robot.
     public static double pollenRPM = 2800;
     public static double nectarRPM = 3300;
     public static double flywheelSpinupTimeoutMs = 2000;
     public static double preloadShootMs = 2000;
     public static double cornerShootMs = 2000;
     public static double flowerShootMs = 2000;
-    public static double flowerIntakeMs = 500;
+    public static double flowerIntakeMs = 1500;
     public static double rampSettleMs = 650;
 
     private Follower follower;
@@ -52,41 +51,40 @@ public class BlueTwoTip extends LinearOpMode {
 
 
 
-        private final PoseFactory poseFactory = PoseFactory.degrees();
+    private final PoseFactory poseFactory = PoseFactory.degrees();
 
-        private final Pose start = poseFactory.of(92.6552, 132.4481, 0);
-        private final Pose intakeCorner = poseFactory.of(132.9365, 133.588, 0);
-        private final Pose travelThroughHiveStart = poseFactory.of(132.9365, 133.588, 0);
-        private final Pose travelThroughHive = poseFactory.of(80.7555, 20.8926, 180);
-        private final Pose travelThroughHiveControl1 = poseFactory.of(115.2819, 17.7931, 180);
-        private final Pose runToFlowerStart = poseFactory.of(80.7555, 20.8926, 180);
-        private final Pose runToFlower = poseFactory.of(93.6955, 14.5892, 270);
-        private final Pose runToFlowerControl1 = poseFactory.of(105.0053, 59.2547, 0);
-        private final Pose returnFromFlowerStart = poseFactory.of(93.6955, 14.5892, 270);
-        private final Pose returnFromFlower = poseFactory.of(81.0022, 21.5447, 180);
-        private final Pose returnFromFlowerControl1 = poseFactory.of(104.9466, 58.8196, 0);
-        private final Pose park = poseFactory.of(133.8792, 21.7693, 180);
+    private final Pose start = poseFactory.of(90.9964, 132.1164, 0);
+    private final Pose intakeCorner = poseFactory.of(132.9365, 133.588, 0);
+    private final Pose travelThroughHiveStart = poseFactory.of(132.9365, 133.588, 0);
+    private final Pose travelThroughHive = poseFactory.of(80.7555, 20.8926, 180);
+    private final Pose travelThroughHiveControl1 = poseFactory.of(64.0047, 120.7122, 0);
+    private final Pose runToFlowerStart = poseFactory.of(80.7555, 20.8926, 180);
+    private final Pose runToFlower = poseFactory.of(93.6955, 14.5892, 270);
+    private final Pose runToFlowerControl1 = poseFactory.of(105.0053, 59.2547, 0);
+    private final Pose returnFromFlowerStart = poseFactory.of(93.6955, 14.5892, 270);
+    private final Pose returnFromFlower = poseFactory.of(81.0022, 21.5447, 180);
+    private final Pose returnFromFlowerControl1 = poseFactory.of(104.4489, 60.1466, 0);
+    private final Pose park = poseFactory.of(133.8792, 21.7693, 180);
 
-        public Path intakeCorner() {
-            return Paths.line(start, intakeCorner).constant(intakeCorner);
-        }
+    public Path intakeCorner() {
+        return Paths.line(start, intakeCorner).constant(intakeCorner);
+    }
 
-        public Path travelThroughHive() {
-            return Paths.curve(travelThroughHiveStart, travelThroughHiveControl1, travelThroughHive).linear(travelThroughHiveStart, travelThroughHive);
-        }
+    public Path travelThroughHive() {
+        return Paths.curve(travelThroughHiveStart, travelThroughHiveControl1, travelThroughHive).linear(travelThroughHiveStart, travelThroughHive);
+    }
 
-        public Path runToFlower() {
-            return Paths.curve(runToFlowerStart, runToFlowerControl1, runToFlower).linear(runToFlowerStart, runToFlower);
-        }
+    public Path runToFlower() {
+        return Paths.curve(runToFlowerStart, runToFlowerControl1, runToFlower).linear(runToFlowerStart, runToFlower);
+    }
 
-        public Path returnFromFlower() {
-            return Paths.curve(returnFromFlowerStart, returnFromFlowerControl1, returnFromFlower).linear(returnFromFlowerStart, returnFromFlower);
-        }
+    public Path returnFromFlower() {
+        return Paths.curve(returnFromFlowerStart, returnFromFlowerControl1, returnFromFlower).linear(returnFromFlowerStart, returnFromFlower);
+    }
 
-        public Path park() {
-            return Paths.line(returnFromFlower, park).constant(park);
-        }
-
+    public Path park() {
+        return Paths.line(returnFromFlower, park).constant(park);
+    }
 
     // Autonomous routine
     public Command autoRoutine() {
@@ -214,7 +212,6 @@ public class BlueTwoTip extends LinearOpMode {
                     transfer.on();
                     intake.intake();
                 }),
-                // No piece sensor is configured, so shot completion is timed.
                 waitMs(feedMs),
                 instant(this::stopShooting)
         );
