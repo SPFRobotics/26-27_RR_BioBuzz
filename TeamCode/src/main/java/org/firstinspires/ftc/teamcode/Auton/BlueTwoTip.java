@@ -36,7 +36,7 @@ public class BlueTwoTip extends LinearOpMode {
     public static double flywheelSpinupTimeoutMs = 2000;
     public static double preloadShootMs = 2000;
     public static double cornerShootMs = 2000;
-    public static double flowerShootMs = 4000;
+    public static double flowerShootMs = 2000;
     public static double flowerIntakeMs = 1500;
     public static double rampSettleMs = 650;
 
@@ -53,25 +53,28 @@ public class BlueTwoTip extends LinearOpMode {
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose start = poseFactory.of(90.9964, 132.1164, 0);
+    private final Pose start = poseFactory.of(90.9964, 132.1164, 90);
     private final Pose intakeCorner = poseFactory.of(132.9365, 133.588, 0);
-    private final Pose travelThroughHiveStart = poseFactory.of(132.9365, 133.588, 0);
     private final Pose travelThroughHive = poseFactory.of(80.7555, 20.8926, 180);
-    private final Pose travelThroughHiveControl1 = poseFactory.of(64.0047, 120.7122, 0);
+    private final Pose travelThroughHiveControl1 = poseFactory.of(69.4789, 140.1208, 0);
+    private final Pose travelThroughHiveControl2 = poseFactory.of(85.3224, 61.3505, 0);
+    private final Pose travelThroughHiveSegment1Heading = poseFactory.of(80.7555, 20.8926, 0);
+    private final Pose travelThroughHiveSegment3Start = poseFactory.of(80.7555, 20.8926, 89.5414);
+    private final Pose travelThroughHiveSegment3End = poseFactory.of(80.7555, 20.8926, 180);
     private final Pose runToFlowerStart = poseFactory.of(80.7555, 20.8926, 180);
     private final Pose runToFlower = poseFactory.of(93.6955, 14.5892, 270);
     private final Pose runToFlowerControl1 = poseFactory.of(105.0053, 59.2547, 0);
     private final Pose returnFromFlowerStart = poseFactory.of(93.6955, 14.5892, 270);
     private final Pose returnFromFlower = poseFactory.of(81.0022, 21.5447, 180);
     private final Pose returnFromFlowerControl1 = poseFactory.of(104.4489, 60.1466, 0);
-    private final Pose park = poseFactory.of(133.8792, 21.7693, 180);
+    private final Pose park = poseFactory.of(127.2438, 21.2716, 180);
 
     public Path intakeCorner() {
         return Paths.line(start, intakeCorner).constant(intakeCorner);
     }
 
     public Path travelThroughHive() {
-        return Paths.curve(travelThroughHiveStart, travelThroughHiveControl1, travelThroughHive).linear(travelThroughHiveStart, travelThroughHive);
+        return Paths.curve(intakeCorner, travelThroughHiveControl1, travelThroughHiveControl2, travelThroughHive).heading(Interpolator.piecewise().until(0.1166, Interpolator.constant(travelThroughHiveSegment1Heading)).until(0.7804, Interpolator.tangent.reverse()).until(1, Interpolator.linear(travelThroughHiveSegment3Start, travelThroughHiveSegment3End)));
     }
 
     public Path runToFlower() {
