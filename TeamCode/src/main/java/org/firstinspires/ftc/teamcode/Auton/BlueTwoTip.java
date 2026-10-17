@@ -36,7 +36,7 @@ public class BlueTwoTip extends LinearOpMode {
     public static double flywheelSpinupTimeoutMs = 2000;
     public static double preloadShootMs = 2000;
     public static double cornerShootMs = 2000;
-    public static double flowerShootMs = 2000;
+    public static double flowerShootMs = 4000;
     public static double flowerIntakeMs = 1500;
     public static double rampSettleMs = 650;
 
