@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Auton;
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
+import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
@@ -34,11 +35,12 @@ public class BlueTwoTip extends LinearOpMode {
     public static double pollenRPM = 2800;
     public static double nectarRPM = 3300;
     public static double flywheelSpinupTimeoutMs = 2000;
-    public static double preloadShootMs = 2000;
-    public static double cornerShootMs = 2000;
-    public static double flowerShootMs = 2000;
-    public static double flowerIntakeMs = 1500;
+    public static double preloadShootMs = 3000;
+    public static double cornerShootMs = 3000;
+    public static double flowerShootMs = 3000;
+    public static double flowerIntakeMs = 2000;
     public static double rampSettleMs = 650;
+    public static double returnRampRaiseDelayMs = 500;
 
     private Follower follower;
     private Intake intake;
@@ -53,7 +55,7 @@ public class BlueTwoTip extends LinearOpMode {
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose start = poseFactory.of(90.9964, 132.1164, 90);
+    private final Pose start = poseFactory.of(90.9964, 132.1164, 0);
     private final Pose intakeCorner = poseFactory.of(132.9365, 133.588, 0);
     private final Pose travelThroughHive = poseFactory.of(80.7555, 20.8926, 180);
     private final Pose travelThroughHiveControl1 = poseFactory.of(69.4789, 140.1208, 0);
@@ -110,21 +112,18 @@ public class BlueTwoTip extends LinearOpMode {
                     startFlywheels();
                 }),
                 followToEnd(travelThroughHive()),
-                shoot("Shoot corner collection", cornerShootMs),
-                step("Run to flower", () -> {
-                    pushbackRamp.down();
-                    intake.intake();
-                }),
-                waitMs(rampSettleMs),
+                // Lower for flower intake while shooting the corner collection.
+                parallel(
+                        instant(() -> pushbackRamp.down()),
+                        waitMs(rampSettleMs),
+                        shoot("Shoot corner collection", cornerShootMs)
+                ),
+                step("Run to flower", () -> intake.intake()),
                 followToEnd(runToFlower()),
                 waitMs(flowerIntakeMs),
                 step("Return from flower", () -> { }),
-                followToEnd(returnFromFlower()),
-                step("Raise ramp", () -> {
-                    pushbackRamp.up();
-                    intake.stop();
-                }),
-                waitMs(rampSettleMs),
+                returnToShootingSpot(returnFromFlower()),
+                instant(() -> intake.stop()),
                 shoot("Shoot flower collection", flowerShootMs),
                 step("Park", () -> { }),
                 followToEnd(park()),
@@ -203,6 +202,17 @@ public class BlueTwoTip extends LinearOpMode {
     private Command followToEnd(Path path) {
         // Ivy's default follow finishes at the parametric end, before pose settling.
         return follow(follower, path).setDone(() -> !follower.isBusy());
+    }
+
+    private Command returnToShootingSpot(Path path) {
+        return parallel(
+                followToEnd(path),
+                sequential(
+                        // Give the robot time to clear the flower before lifting the arm.
+                        waitMs(returnRampRaiseDelayMs),
+                        instant(() -> pushbackRamp.up())
+                )
+        );
     }
 
     private Command shoot(String name, double feedMs) {
