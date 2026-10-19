@@ -26,11 +26,13 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
     private FlywheelPollen pollenWheel;
     private FlywheelNectar nectarWheel;
     private boolean intakeEnabled;
+    private boolean intakeReversed;
     private boolean flywheelEnabled;
     private boolean transferEnabled;
     private boolean blockerClosed = true;
     private boolean pushbackRampDown;
     private boolean previousIntakeButton;
+    private boolean previousReverseIntakeButton;
     private boolean previousFlywheelButton;
     private boolean previousTransferButton;
     private boolean previousBlockerButton;
@@ -60,11 +62,13 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
     @Override
     public void start() {
         intakeEnabled = false;
+        intakeReversed = false;
         flywheelEnabled = false;
         transferEnabled = false;
         blockerClosed = true;
         pushbackRampDown = false;
         previousIntakeButton = false;
+        previousReverseIntakeButton = false;
         previousFlywheelButton = false;
         previousTransferButton = false;
         previousBlockerButton = false;
@@ -82,6 +86,7 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
         follower.update();
 
         boolean intakeButton = gamepad1.x;
+        boolean reverseIntakeButton = gamepad1.right_bumper;
         boolean flywheelButton = gamepad1.left_bumper;
         boolean transferButton = gamepad1.y;
         boolean blockerButton = gamepad1.b;
@@ -89,6 +94,11 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
 
         if (intakeButton && !previousIntakeButton) {
             intakeEnabled = !intakeEnabled;
+            intakeReversed = false;
+        }
+        if (reverseIntakeButton && !previousReverseIntakeButton) {
+            intakeReversed = !intakeReversed;
+            intakeEnabled = false;
         }
         if (flywheelButton && !previousFlywheelButton) {
             flywheelEnabled = !flywheelEnabled;
@@ -104,6 +114,7 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
         }
 
         previousIntakeButton = intakeButton;
+        previousReverseIntakeButton = reverseIntakeButton;
         previousFlywheelButton = flywheelButton;
         previousTransferButton = transferButton;
         previousBlockerButton = blockerButton;
@@ -125,7 +136,9 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
             pushbackRamp.up();
         }
 
-        if (intakeEnabled) {
+        if (intakeReversed) {
+            intake.outtake();
+        } else if (intakeEnabled) {
             intake.intake();
         } else {
             intake.stop();
@@ -156,6 +169,7 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
         telemetry.addData("Left stick", "Drive / strafe");
         telemetry.addData("Right stick left/right", "Turn");
         telemetry.addData("X / Square - Intake", intakeEnabled ? "On" : "Off");
+        telemetry.addData("RB / R1 - Reverse intake", intakeReversed ? "On" : "Off");
         telemetry.addData("LB / L1 - Flywheels", flywheelEnabled ? "On" : "Off");
         telemetry.addData("Y / Triangle - Transfer", transferEnabled ? "On" : "Off");
         telemetry.addData("B / Circle - Blocker", blockerClosed ? "Closed" : "Open");
@@ -165,6 +179,7 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
     @Override
     public void stop() {
         intakeEnabled = false;
+        intakeReversed = false;
         flywheelEnabled = false;
         transferEnabled = false;
         blockerClosed = true;

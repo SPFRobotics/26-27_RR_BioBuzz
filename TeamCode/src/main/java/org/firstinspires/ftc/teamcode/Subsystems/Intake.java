@@ -42,6 +42,6 @@ public class Intake {
             motor.setPower(1 * Math.signum(power));
             return;
         }
-        motor.setPower(1);
+        motor.setPower(power);
     }
 }
