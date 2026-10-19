@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.Auton;
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
-import static com.pedropathing.ivy.groups.Groups.deadline;
 import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
@@ -14,12 +13,13 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
-import com.pedropathing.ivy.groups.Groups;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.interpolator.Interpolator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Subsystems.FlywheelNectar;
 import org.firstinspires.ftc.teamcode.Subsystems.FlywheelPollen;
@@ -34,16 +34,16 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 @Autonomous(name = "B- TwoTip", group = "BlueAuto")
 public class BlueTwoTip extends LinearOpMode {
 
-    public static double pollenRPM = 2800;
+    public static double pollenRPM = 3000;
     public static double nectarRPM = 3300;
     public static double flywheelSpinupTimeoutMs = 2000;
-    public static double preloadShootMs = 3000;
+    public static double preloadShootMs = 2800;
     public static double cornerShootMs = 3000;
     public static double flowerShootMs = 3000;
     public static double flowerIntakeMs = 2000;
     // Distance to either side of the flower intake pose, in robot-relative inches.
-    public static double flowerStrafeInches = 1.0;
-    public static double flowerStrafeToleranceInches = 0.15;
+    public static double flowerStrafeInches = 3.0;
+    public static double flowerStrafePower = 0.4;
     public static double rampSettleMs = 650;
     public static double returnRampRaiseDelayMs = 500;
 
@@ -105,6 +105,7 @@ public class BlueTwoTip extends LinearOpMode {
                     intake.stop();
                     waitMs(1000);
                 }),
+                shoot("Shoot 4 preload", preloadShootMs),
                 step("Intake corner", () -> {
                     transfer.block();
                     intake.intake();
@@ -210,25 +211,46 @@ public class BlueTwoTip extends LinearOpMode {
     }
 
     private Command intakeAtFlower() {
-        double dx = -Math.sin(runToFlower.heading()) * flowerStrafeInches;
-        double dy = Math.cos(runToFlower.heading()) * flowerStrafeInches;
-        Pose left = new Pose(runToFlower.x() + dx, runToFlower.y() + dy, runToFlower.heading());
-        Pose right = new Pose(runToFlower.x() - dx, runToFlower.y() - dy, runToFlower.heading());
+        ElapsedTime timer = new ElapsedTime();
+        Pose[] center = new Pose[1];
+        int[] direction = {1};
 
-        return sequential(
-                step("Intake flower - strafe", () -> intake.intake()),
-                deadline(waitMs(flowerIntakeMs), Groups.loop(sequential(
-                        strafeTo(left),
-                        strafeTo(right)
-                ))),
-                instant(() -> follower.stop())
-        );
-    }
-
-    private Command strafeTo(Pose target) {
         return Command.build()
-                .setStart(() -> follower.hold(target))
-                .setDone(() -> follower.pose().distance(target) <= flowerStrafeToleranceInches);
+                .setStart(() -> {
+                    stage = "Intake flower - strafe";
+                    intake.intake();
+                    // Measure the offset from where we actually arrived at the flower.
+                    center[0] = follower.pose();
+                    direction[0] = 1;
+                    timer.reset();
+                    follower.manual(0, Range.clip(Math.abs(flowerStrafePower), 0, 1), 0);
+                })
+                .setExecute(() -> {
+                    Pose pose = follower.pose();
+                    double heading = center[0].heading();
+                    double offset = -(pose.x() - center[0].x()) * Math.sin(heading)
+                            + (pose.y() - center[0].y()) * Math.cos(heading);
+                    double limit = Math.abs(flowerStrafeInches);
+                    if (offset >= limit) {
+                        direction[0] = -1;
+                    } else if (offset <= -limit) {
+                        direction[0] = 1;
+                    }
+                    double headingError = Math.atan2(Math.sin(heading - pose.heading()),
+                            Math.cos(heading - pose.heading()));
+                    double turn = Range.clip(headingError * 2.0, -0.2, 0.2);
+                    double power = Range.clip(Math.abs(flowerStrafePower), 0, 1);
+                    if (timer.milliseconds() >= flowerIntakeMs || limit == 0) {
+                        follower.stop();
+                    } else {
+                        follower.manual(0, direction[0] * power, turn);
+                    }
+                    telemetry.addData("Flower strafe offset (in)", offset);
+                    telemetry.addData("Flower strafe direction", direction[0]);
+                    telemetry.addData("Flower intake elapsed (ms)", timer.milliseconds());
+                })
+                .setDone(() -> timer.milliseconds() >= flowerIntakeMs)
+                .setEnd(condition -> follower.stop());
     }
 
     private Command returnToShootingSpot(Path path) {
