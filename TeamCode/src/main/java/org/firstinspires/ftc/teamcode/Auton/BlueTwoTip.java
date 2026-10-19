@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Auton;
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
+import static com.pedropathing.ivy.groups.Groups.deadline;
 import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
@@ -13,6 +14,7 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
+import com.pedropathing.ivy.groups.Groups;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.interpolator.Interpolator;
@@ -39,6 +41,9 @@ public class BlueTwoTip extends LinearOpMode {
     public static double cornerShootMs = 3000;
     public static double flowerShootMs = 3000;
     public static double flowerIntakeMs = 2000;
+    // Distance to either side of the flower intake pose, in robot-relative inches.
+    public static double flowerStrafeInches = 1.0;
+    public static double flowerStrafeToleranceInches = 0.15;
     public static double rampSettleMs = 650;
     public static double returnRampRaiseDelayMs = 500;
 
@@ -120,7 +125,7 @@ public class BlueTwoTip extends LinearOpMode {
                 ),
                 step("Run to flower", () -> intake.intake()),
                 followToEnd(runToFlower()),
-                waitMs(flowerIntakeMs),
+                intakeAtFlower(),
                 step("Return from flower", () -> { }),
                 returnToShootingSpot(returnFromFlower()),
                 instant(() -> intake.stop()),
@@ -202,6 +207,28 @@ public class BlueTwoTip extends LinearOpMode {
     private Command followToEnd(Path path) {
         // Ivy's default follow finishes at the parametric end, before pose settling.
         return follow(follower, path).setDone(() -> !follower.isBusy());
+    }
+
+    private Command intakeAtFlower() {
+        double dx = -Math.sin(runToFlower.heading()) * flowerStrafeInches;
+        double dy = Math.cos(runToFlower.heading()) * flowerStrafeInches;
+        Pose left = new Pose(runToFlower.x() + dx, runToFlower.y() + dy, runToFlower.heading());
+        Pose right = new Pose(runToFlower.x() - dx, runToFlower.y() - dy, runToFlower.heading());
+
+        return sequential(
+                step("Intake flower - strafe", () -> intake.intake()),
+                deadline(waitMs(flowerIntakeMs), Groups.loop(sequential(
+                        strafeTo(left),
+                        strafeTo(right)
+                ))),
+                instant(() -> follower.stop())
+        );
+    }
+
+    private Command strafeTo(Pose target) {
+        return Command.build()
+                .setStart(() -> follower.hold(target))
+                .setDone(() -> follower.pose().distance(target) <= flowerStrafeToleranceInches);
     }
 
     private Command returnToShootingSpot(Path path) {
