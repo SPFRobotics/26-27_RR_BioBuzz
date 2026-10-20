@@ -15,8 +15,10 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 @TeleOp(name = "TeleOp", group = "TeleOp")
 public class Tele extends OpMode {
-//coords in inches imperial better than metric RAHHHH
-private static final Pose TARGET_POSE = new Pose(0, 0);
+    // Coordinates are in inches.
+    private static final Pose TARGET_POSE = new Pose(0, 0);
+    private static final double PRECISION_DRIVE_SCALE = 0.35;
+    private static final double PRECISION_TRIGGER_THRESHOLD = 0.1;
 
     private Follower follower;
     private Intake intake;
@@ -79,17 +81,19 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
     @Override
     public void loop() {
 
+        double driveScale = gamepad1.left_trigger > PRECISION_TRIGGER_THRESHOLD
+                ? PRECISION_DRIVE_SCALE : 1.0;
         follower.manual(
-                -gamepad1.left_stick_y,
-                -gamepad1.left_stick_x,
-                -gamepad1.right_stick_x);
+                -gamepad1.left_stick_y * driveScale,
+                -gamepad1.left_stick_x * driveScale,
+                -gamepad1.right_stick_x * driveScale);
         follower.update();
 
         boolean intakeButton = gamepad1.x;
         boolean reverseIntakeButton = gamepad1.right_bumper;
-        boolean flywheelButton = gamepad1.left_bumper;
-        boolean transferButton = gamepad1.y;
-        boolean blockerButton = gamepad1.b;
+        boolean flywheelButton = gamepad2.left_bumper;
+        boolean transferButton = gamepad2.y;
+        boolean blockerButton = gamepad2.b;
         boolean pushbackRampButton = gamepad1.a;
 
         if (intakeButton && !previousIntakeButton) {
@@ -165,15 +169,19 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
     }
 
     private void addControlTelemetry() {
-        telemetry.addLine("Controller 1 controls (buttons toggle)");
-        telemetry.addData("Left stick", "Drive / strafe");
-        telemetry.addData("Right stick left/right", "Turn");
-        telemetry.addData("X / Square - Intake", intakeEnabled ? "On" : "Off");
-        telemetry.addData("RB / R1 - Reverse intake", intakeReversed ? "On" : "Off");
-        telemetry.addData("LB / L1 - Flywheels", flywheelEnabled ? "On" : "Off");
-        telemetry.addData("Y / Triangle - Transfer", transferEnabled ? "On" : "Off");
-        telemetry.addData("B / Circle - Blocker", blockerClosed ? "Closed" : "Open");
-        telemetry.addData("A / Cross - Pushback ramp", pushbackRampDown ? "Down" : "Up");
+        telemetry.addLine("Gamepad 1 - Driving and collection (buttons toggle)");
+        telemetry.addData("GP1 Left stick", "Drive / strafe");
+        telemetry.addData("GP1 Right stick left/right", "Turn");
+        telemetry.addData("GP1 LT / L2 - Hold for precision driving",
+                gamepad1.left_trigger > PRECISION_TRIGGER_THRESHOLD ? "35% speed" : "Full speed");
+        telemetry.addData("GP1 X / Square - Intake", intakeEnabled ? "On" : "Off");
+        telemetry.addData("GP1 RB / R1 - Reverse intake", intakeReversed ? "On" : "Off");
+        telemetry.addData("GP1 A / Cross - Pushback ramp", pushbackRampDown ? "Down" : "Up");
+
+        telemetry.addLine("Gamepad 2 - Scoring (buttons toggle)");
+        telemetry.addData("GP2 LB / L1 - Flywheels", flywheelEnabled ? "On" : "Off");
+        telemetry.addData("GP2 Y / Triangle - Transfer", transferEnabled ? "On" : "Off");
+        telemetry.addData("GP2 B / Circle - Blocker", blockerClosed ? "Closed" : "Open");
     }
 
     @Override
