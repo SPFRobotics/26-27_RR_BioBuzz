@@ -34,7 +34,7 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 @Autonomous(name = "B- TwoTip", group = "BlueAuto")
 public class BlueTwoTip extends LinearOpMode {
 
-    public static double pollenRPM = 3000;
+    public static double pollenRPM = 2950;
     public static double nectarRPM = 3300;
     public static double flywheelSpinupTimeoutMs = 2000;
     public static double preloadShootMs = 2800;
@@ -44,6 +44,7 @@ public class BlueTwoTip extends LinearOpMode {
     // Distance to either side of the flower intake pose, in robot-relative inches.
     public static double flowerStrafeInches = 3.0;
     public static double flowerStrafePower = 0.4;
+    public static double flowerRampLowerDelayMs = 750;
     public static double rampSettleMs = 650;
     public static double returnRampRaiseDelayMs = 500;
 
@@ -60,21 +61,22 @@ public class BlueTwoTip extends LinearOpMode {
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose start = poseFactory.of(90.9964, 132.1164, 0);
+    private final Pose start = poseFactory.of(92.843, 132.1164, 0);
     private final Pose intakeCorner = poseFactory.of(132.9365, 133.588, 0);
-    private final Pose travelThroughHive = poseFactory.of(80.7555, 20.8926, 180);
+    private final Pose travelThroughHive = poseFactory.of(80.5247, 7.966, 180);
     private final Pose travelThroughHiveControl1 = poseFactory.of(69.4789, 140.1208, 0);
     private final Pose travelThroughHiveControl2 = poseFactory.of(85.3224, 61.3505, 0);
-    private final Pose travelThroughHiveSegment1Heading = poseFactory.of(80.7555, 20.8926, 0);
-    private final Pose travelThroughHiveSegment3Start = poseFactory.of(80.7555, 20.8926, 89.5414);
-    private final Pose travelThroughHiveSegment3End = poseFactory.of(80.7555, 20.8926, 180);
-    private final Pose runToFlowerStart = poseFactory.of(80.7555, 20.8926, 180);
+    private final Pose travelThroughHiveSegment1Heading = poseFactory.of(80.5247, 7.966, 0);
+    private final Pose travelThroughHiveSegment3Start = poseFactory.of(80.5247, 7.966, 89.4702);
+    private final Pose travelThroughHiveSegment3End = poseFactory.of(80.5247, 7.966, 180);
+    private final Pose runToFlowerStart = poseFactory.of(80.5247, 7.966, 180);
     private final Pose runToFlower = poseFactory.of(93.6955, 14.5892, 270);
     private final Pose runToFlowerControl1 = poseFactory.of(105.0053, 59.2547, 0);
     private final Pose returnFromFlowerStart = poseFactory.of(93.6955, 14.5892, 270);
-    private final Pose returnFromFlower = poseFactory.of(81.0022, 21.5447, 180);
+    private final Pose returnFromFlower = poseFactory.of(80.7714, 10.0031, 180);
     private final Pose returnFromFlowerControl1 = poseFactory.of(104.4489, 60.1466, 0);
     private final Pose park = poseFactory.of(127.2438, 21.2716, 180);
+    private final Pose parkControl1 = poseFactory.of(110.9396, 29.6003, 0);
 
     public Path intakeCorner() {
         return Paths.line(start, intakeCorner).constant(intakeCorner);
@@ -118,14 +120,16 @@ public class BlueTwoTip extends LinearOpMode {
                     startFlywheels();
                 }),
                 followToEnd(travelThroughHive()),
-                // Lower for flower intake while shooting the corner collection.
-                parallel(
-                        instant(() -> pushbackRamp.down()),
-                        waitMs(rampSettleMs),
-                        shoot("Shoot corner collection", cornerShootMs)
-                ),
+                shoot("Shoot corner collection", cornerShootMs),
                 step("Run to flower", () -> intake.intake()),
-                followToEnd(runToFlower()),
+                parallel(
+                        followToEnd(runToFlower()),
+                        sequential(
+                                waitMs(flowerRampLowerDelayMs),
+                                instant(() -> pushbackRamp.down()),
+                                waitMs(rampSettleMs)
+                        )
+                ),
                 intakeAtFlower(),
                 step("Return from flower", () -> { }),
                 returnToShootingSpot(returnFromFlower()),
