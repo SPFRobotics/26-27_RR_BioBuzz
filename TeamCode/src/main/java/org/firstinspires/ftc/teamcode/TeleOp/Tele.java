@@ -96,22 +96,21 @@ public class Tele extends OpMode {
         boolean blockerButton = gamepad2.b;
         boolean pushbackRampButton = gamepad1.a;
 
-        if (intakeButton && !previousIntakeButton) {
-            intakeEnabled = !intakeEnabled;
-            intakeReversed = false;
+        // Preserve the normal settings throughout reverse, including its release loop.
+        if (!reverseIntakeButton && !previousReverseIntakeButton) {
+            if (intakeButton && !previousIntakeButton) {
+                intakeEnabled = !intakeEnabled;
+            }
+            if (transferButton && !previousTransferButton) {
+                transferEnabled = !transferEnabled;
+            }
+            if (blockerButton && !previousBlockerButton) {
+                blockerClosed = !blockerClosed;
+            }
         }
-        if (reverseIntakeButton && !previousReverseIntakeButton) {
-            intakeReversed = !intakeReversed;
-            intakeEnabled = false;
-        }
+        intakeReversed = reverseIntakeButton;
         if (flywheelButton && !previousFlywheelButton) {
             flywheelEnabled = !flywheelEnabled;
-        }
-        if (transferButton && !previousTransferButton) {
-            transferEnabled = !transferEnabled;
-        }
-        if (blockerButton && !previousBlockerButton) {
-            blockerClosed = !blockerClosed;
         }
         if (pushbackRampButton && !previousPushbackRampButton) {
             pushbackRampDown = !pushbackRampDown;
@@ -124,12 +123,16 @@ public class Tele extends OpMode {
         previousBlockerButton = blockerButton;
         previousPushbackRampButton = pushbackRampButton;
 
-        if (transferEnabled) {
+        if (intakeReversed) {
+            transfer.setPower(-0.8);
+        } else if (transferEnabled) {
             transfer.on();
         } else {
             transfer.off();
         }
-        if (blockerClosed) {
+        if (intakeReversed) {
+            transfer.release();
+        } else if (blockerClosed) {
             transfer.block();
         } else {
             transfer.release();
@@ -169,19 +172,19 @@ public class Tele extends OpMode {
     }
 
     private void addControlTelemetry() {
-        telemetry.addLine("Gamepad 1 - Driving and collection (buttons toggle)");
+        telemetry.addLine("Gamepad 1 - Driving and collection (RB/R1 hold; other buttons toggle)");
         telemetry.addData("GP1 Left stick", "Drive / strafe");
         telemetry.addData("GP1 Right stick left/right", "Turn");
         telemetry.addData("GP1 LT / L2 - Hold for precision driving",
                 gamepad1.left_trigger > PRECISION_TRIGGER_THRESHOLD ? "35% speed" : "Full speed");
-        telemetry.addData("GP1 X / Square - Intake", intakeEnabled ? "On" : "Off");
-        telemetry.addData("GP1 RB / R1 - Reverse intake", intakeReversed ? "On" : "Off");
+        telemetry.addData("GP1 X / Square - Intake", intakeReversed ? "Reverse" : (intakeEnabled ? "On" : "Off"));
+        telemetry.addData("GP1 RB / R1 - Hold to reverse intake + transfer", intakeReversed ? "Held" : "Released");
         telemetry.addData("GP1 A / Cross - Pushback ramp", pushbackRampDown ? "Down" : "Up");
 
         telemetry.addLine("Gamepad 2 - Scoring (buttons toggle)");
         telemetry.addData("GP2 LB / L1 - Flywheels", flywheelEnabled ? "On" : "Off");
-        telemetry.addData("GP2 Y / Triangle - Transfer", transferEnabled ? "On" : "Off");
-        telemetry.addData("GP2 B / Circle - Blocker", blockerClosed ? "Closed" : "Open");
+        telemetry.addData("GP2 Y / Triangle - Transfer", intakeReversed ? "Reverse" : (transferEnabled ? "On" : "Off"));
+        telemetry.addData("GP2 B / Circle - Blocker", intakeReversed ? "Down (reverse)" : (blockerClosed ? "Closed" : "Open"));
     }
 
     @Override

@@ -34,7 +34,7 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 @Autonomous(name = "B- TwoTip", group = "BlueAuto")
 public class BlueTwoTip extends LinearOpMode {
 
-    public static double pollenRPM = 2950;
+    public static double pollenRPM = 2900;
     public static double nectarRPM = 3300;
     public static double flywheelSpinupTimeoutMs = 2000;
     public static double preloadShootMs = 2800;
@@ -42,8 +42,8 @@ public class BlueTwoTip extends LinearOpMode {
     public static double flowerShootMs = 3000;
     public static double flowerIntakeMs = 2000;
     // Distance to either side of the flower intake pose, in robot-relative inches.
-    public static double flowerStrafeInches = 3.0;
-    public static double flowerStrafePower = 0.4;
+    public static double flowerStrafeInches = 1.5;
+    public static double flowerStrafePower = 0.25;
     public static double flowerRampLowerDelayMs = 750;
     public static double rampSettleMs = 650;
     public static double returnRampRaiseDelayMs = 500;
@@ -61,22 +61,22 @@ public class BlueTwoTip extends LinearOpMode {
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose start = poseFactory.of(92.843, 132.1164, 0);
-    private final Pose intakeCorner = poseFactory.of(132.9365, 133.588, 0);
-    private final Pose travelThroughHive = poseFactory.of(80.5247, 7.966, 180);
+    private final Pose start = poseFactory.of(91.458, 132.8089, 0);
+    private final Pose intakeCorner = poseFactory.of(133.1674, 133.588, 0);
+    private final Pose travelThroughHive = poseFactory.of(80.9863, 11.4285, 180);
     private final Pose travelThroughHiveControl1 = poseFactory.of(69.4789, 140.1208, 0);
     private final Pose travelThroughHiveControl2 = poseFactory.of(85.3224, 61.3505, 0);
-    private final Pose travelThroughHiveSegment1Heading = poseFactory.of(80.5247, 7.966, 0);
-    private final Pose travelThroughHiveSegment3Start = poseFactory.of(80.5247, 7.966, 89.4702);
-    private final Pose travelThroughHiveSegment3End = poseFactory.of(80.5247, 7.966, 180);
-    private final Pose runToFlowerStart = poseFactory.of(80.5247, 7.966, 180);
+    private final Pose travelThroughHiveSegment1Heading = poseFactory.of(80.9863, 11.4285, 0);
+    private final Pose travelThroughHiveSegment3Start = poseFactory.of(80.9863, 11.4285, 89.7453);
+    private final Pose travelThroughHiveSegment3End = poseFactory.of(80.9863, 11.4285, 180);
+    private final Pose runToFlowerStart = poseFactory.of(80.9863, 11.4285, 180);
     private final Pose runToFlower = poseFactory.of(93.6955, 14.5892, 270);
     private final Pose runToFlowerControl1 = poseFactory.of(105.0053, 59.2547, 0);
     private final Pose returnFromFlowerStart = poseFactory.of(93.6955, 14.5892, 270);
-    private final Pose returnFromFlower = poseFactory.of(80.7714, 10.0031, 180);
+    private final Pose returnFromFlower = poseFactory.of(80.5405, 11.3881, 180);
     private final Pose returnFromFlowerControl1 = poseFactory.of(104.4489, 60.1466, 0);
     private final Pose park = poseFactory.of(127.2438, 21.2716, 180);
-    private final Pose parkControl1 = poseFactory.of(110.9396, 29.6003, 0);
+    private final Pose parkControl1 = poseFactory.of(93.6272, 38.1411, 0);
 
     public Path intakeCorner() {
         return Paths.line(start, intakeCorner).constant(intakeCorner);
@@ -95,7 +95,7 @@ public class BlueTwoTip extends LinearOpMode {
     }
 
     public Path park() {
-        return Paths.line(returnFromFlower, park).constant(park);
+        return Paths.curve(returnFromFlower, parkControl1, park).constant(park);
     }
 
     // Autonomous routine
@@ -105,7 +105,7 @@ public class BlueTwoTip extends LinearOpMode {
                 shoot("Shoot 4 preload", preloadShootMs),
                 step("intake Off", () -> {
                     intake.stop();
-                    waitMs(1000);
+                    waitMs(800);
                 }),
                 shoot("Shoot 4 preload", preloadShootMs),
                 step("Intake corner", () -> {
@@ -115,7 +115,7 @@ public class BlueTwoTip extends LinearOpMode {
                 followToEnd(intakeCorner()),
                 //followToEnd(strafe()),
                 step("Travel through hive", () -> {
-                    intake.stop();
+                    //intake.stop();
                     transfer.block();
                     startFlywheels();
                 }),
@@ -290,7 +290,7 @@ public class BlueTwoTip extends LinearOpMode {
 
     private void stopShooting() {
         if (intake != null) {
-            intake.stop();
+            //intake.stop();
         }
         if (transfer != null) {
             transfer.off();

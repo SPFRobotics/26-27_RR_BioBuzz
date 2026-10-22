@@ -93,22 +93,21 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
         boolean blockerButton = gamepad1.b;
         boolean pushbackRampButton = gamepad1.a;
 
-        if (intakeButton && !previousIntakeButton) {
-            intakeEnabled = !intakeEnabled;
-            intakeReversed = false;
+        // Preserve the normal settings throughout reverse, including its release loop.
+        if (!reverseIntakeButton && !previousReverseIntakeButton) {
+            if (intakeButton && !previousIntakeButton) {
+                intakeEnabled = !intakeEnabled;
+            }
+            if (transferButton && !previousTransferButton) {
+                transferEnabled = !transferEnabled;
+            }
+            if (blockerButton && !previousBlockerButton) {
+                blockerClosed = !blockerClosed;
+            }
         }
-        if (reverseIntakeButton && !previousReverseIntakeButton) {
-            intakeReversed = !intakeReversed;
-            intakeEnabled = false;
-        }
+        intakeReversed = reverseIntakeButton;
         if (flywheelButton && !previousFlywheelButton) {
             flywheelEnabled = !flywheelEnabled;
-        }
-        if (transferButton && !previousTransferButton) {
-            transferEnabled = !transferEnabled;
-        }
-        if (blockerButton && !previousBlockerButton) {
-            blockerClosed = !blockerClosed;
         }
         if (pushbackRampButton && !previousPushbackRampButton) {
             pushbackRampDown = !pushbackRampDown;
@@ -121,12 +120,16 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
         previousBlockerButton = blockerButton;
         previousPushbackRampButton = pushbackRampButton;
 
-        if (transferEnabled) {
+        if (intakeReversed) {
+            transfer.setPower(-0.8);
+        } else if (transferEnabled) {
             transfer.on();
         } else {
             transfer.off();
         }
-        if (blockerClosed) {
+        if (intakeReversed) {
+            transfer.release();
+        } else if (blockerClosed) {
             transfer.block();
         } else {
             transfer.release();
@@ -166,14 +169,14 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
     }
 
     private void addControlTelemetry() {
-        telemetry.addLine("Controller 1 controls (buttons toggle)");
+        telemetry.addLine("Controller 1 controls (RB/R1 hold; other buttons toggle)");
         telemetry.addData("Left stick", "Drive / strafe");
         telemetry.addData("Right stick left/right", "Turn");
-        telemetry.addData("X / Square - Intake", intakeEnabled ? "On" : "Off");
-        telemetry.addData("RB / R1 - Reverse intake", intakeReversed ? "On" : "Off");
+        telemetry.addData("X / Square - Intake", intakeReversed ? "Reverse" : (intakeEnabled ? "On" : "Off"));
+        telemetry.addData("RB / R1 - Hold to reverse intake + transfer", intakeReversed ? "Held" : "Released");
         telemetry.addData("LB / L1 - Flywheels", flywheelEnabled ? "On" : "Off");
-        telemetry.addData("Y / Triangle - Transfer", transferEnabled ? "On" : "Off");
-        telemetry.addData("B / Circle - Blocker", blockerClosed ? "Closed" : "Open");
+        telemetry.addData("Y / Triangle - Transfer", intakeReversed ? "Reverse" : (transferEnabled ? "On" : "Off"));
+        telemetry.addData("B / Circle - Blocker", intakeReversed ? "Down (reverse)" : (blockerClosed ? "Closed" : "Open"));
         telemetry.addData("A / Cross - Pushback ramp", pushbackRampDown ? "Down" : "Up");
     }
 

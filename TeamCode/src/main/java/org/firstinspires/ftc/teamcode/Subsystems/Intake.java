@@ -16,7 +16,7 @@ public class Intake {
         motor = hardwareMap.get(DcMotor.class, motorName);
         motor.setPower(0.0);
         motor.setDirection(DcMotorSimple.Direction.FORWARD);
-        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
