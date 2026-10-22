@@ -19,6 +19,7 @@ public class Tele extends OpMode {
     private static final Pose TARGET_POSE = new Pose(0, 0);
     private static final double PRECISION_DRIVE_SCALE = 0.35;
     private static final double PRECISION_TRIGGER_THRESHOLD = 0.1;
+    boolean fieldCentric = false;
 
     private Follower follower;
     private Intake intake;
@@ -51,7 +52,7 @@ public class Tele extends OpMode {
 
         follower = Constants.create(hardwareMap);
         Pose startPose = AutoCache.consume();
-        follower.setPose(startPose != null ? startPose : Pose.zero());
+        follower.setPose(new Pose(127.2438, 21.2716, 180));
     }
 
     @Override
@@ -83,9 +84,17 @@ public class Tele extends OpMode {
 
         double driveScale = gamepad1.left_trigger > PRECISION_TRIGGER_THRESHOLD
                 ? PRECISION_DRIVE_SCALE : 1.0;
+        double forward = -gamepad1.left_stick_y * driveScale;
+        double strafe = -gamepad1.left_stick_x * driveScale;
+        if (fieldCentric) {
+            double heading = follower.pose().heading();
+            double robotForward = forward * Math.cos(heading) + strafe * Math.sin(heading);
+            strafe = -forward * Math.sin(heading) + strafe * Math.cos(heading);
+            forward = robotForward;
+        }
         follower.manual(
-                -gamepad1.left_stick_y * driveScale,
-                -gamepad1.left_stick_x * driveScale,
+                forward,
+                strafe,
                 -gamepad1.right_stick_x * driveScale);
         follower.update();
 
@@ -153,8 +162,8 @@ public class Tele extends OpMode {
 
         double distance = getDistanceToTarget();
         if (flywheelEnabled && Double.isFinite(distance) && distance >= 0.0) {
-            pollenWheel.runAtDistance(distance);
-            nectarWheel.runAtDistance(distance);
+            pollenWheel.runAtRPM(2700);
+            nectarWheel.runAtRPM(3300);
         } else {
             pollenWheel.stop();
             nectarWheel.stop();
@@ -172,19 +181,21 @@ public class Tele extends OpMode {
     }
 
     private void addControlTelemetry() {
-        telemetry.addLine("Gamepad 1 - Driving and collection (RB/R1 hold; other buttons toggle)");
-        telemetry.addData("GP1 Left stick", "Drive / strafe");
-        telemetry.addData("GP1 Right stick left/right", "Turn");
-        telemetry.addData("GP1 LT / L2 - Hold for precision driving",
-                gamepad1.left_trigger > PRECISION_TRIGGER_THRESHOLD ? "35% speed" : "Full speed");
-        telemetry.addData("GP1 X / Square - Intake", intakeReversed ? "Reverse" : (intakeEnabled ? "On" : "Off"));
-        telemetry.addData("GP1 RB / R1 - Hold to reverse intake + transfer", intakeReversed ? "Held" : "Released");
-        telemetry.addData("GP1 A / Cross - Pushback ramp", pushbackRampDown ? "Down" : "Up");
+       // telemetry.addLine("Gamepad 1 - Driving and collection (RB/R1 hold; other buttons toggle)");
+        //telemetry.addData("Drive mode", fieldCentric ? "Field-centric" : "Robot-centric");
+       // telemetry.addData("GP1 Left stick", "Drive / strafe");
+       // telemetry.addData("GP1 Right stick left/right", "Turn");
+       // telemetry.addData("GP1 LT / L2 - Hold for precision driving",
+             //   gamepad1.left_trigger > PRECISION_TRIGGER_THRESHOLD ? "35% speed" : "Full speed");
+       // telemetry.addData("GP1 X / Square - Intake", intakeReversed ? "Reverse" : (intakeEnabled ? "On" : "Off"));
+         telemetry.addData("reverse intake + transfer", intakeReversed ? "Held" : "Released");
+        telemetry.addData("Pushback ramp", pushbackRampDown ? "Down" : "Up");
 
-        telemetry.addLine("Gamepad 2 - Scoring (buttons toggle)");
-        telemetry.addData("GP2 LB / L1 - Flywheels", flywheelEnabled ? "On" : "Off");
-        telemetry.addData("GP2 Y / Triangle - Transfer", intakeReversed ? "Reverse" : (transferEnabled ? "On" : "Off"));
-        telemetry.addData("GP2 B / Circle - Blocker", intakeReversed ? "Down (reverse)" : (blockerClosed ? "Closed" : "Open"));
+       // telemetry.addLine("Gamepad 2 - Scoring (buttons toggle)");
+        telemetry.addData("Flywheels: ", flywheelEnabled ? "On" : "Off");
+        //telemetry.addData("GP2 Y / Triangle - Transfer", intakeReversed ? "Reverse" : (transferEnabled ? "On" : "Off"));
+        telemetry.addData("Blocker: ", intakeReversed ? "Down (reverse)" : (blockerClosed ? "Closed" : "Open"));
+        telemetry.addData("Pos: ", follower.pose());
     }
 
     @Override

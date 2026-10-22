@@ -34,7 +34,7 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 @Autonomous(name = "B- TwoTip", group = "BlueAuto")
 public class BlueTwoTip extends LinearOpMode {
 
-    public static double pollenRPM = 2900;
+    public static double pollenRPM = 2700;
     public static double nectarRPM = 3300;
     public static double flywheelSpinupTimeoutMs = 2000;
     public static double preloadShootMs = 2800;
