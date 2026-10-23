@@ -33,6 +33,7 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 @Config
 @Autonomous(name = "B- TwoTip", group = "BlueAuto")
 public class BlueTwoTip extends LinearOpMode {
+    private static final double LED_CYCLE_SECONDS = 10.0;
 
     public static double pollenRPM = 2700;
     public static double nectarRPM = 3300;
@@ -54,7 +55,7 @@ public class BlueTwoTip extends LinearOpMode {
     private PushbackRamp pushbackRamp;
     private FlywheelPollen pollenWheel;
     private FlywheelNectar nectarWheel;
-    //private LedLights leds;
+    private LedLights leds;
     private String stage = "Ready";
 
 
@@ -152,13 +153,18 @@ public class BlueTwoTip extends LinearOpMode {
             pushbackRamp = new PushbackRamp(hardwareMap);
             pollenWheel = new FlywheelPollen(hardwareMap);
             nectarWheel = new FlywheelNectar(hardwareMap);
-           // leds = new LedLights(hardwareMap);
+            leds = new LedLights(hardwareMap);
+            leds.cycleColors(LED_CYCLE_SECONDS);
             stopMechanisms();
 
             follower = Constants.create(hardwareMap);
             follower.setPose(start);
             follower.update();
 
+            while (opModeInInit() && !isStopRequested()) {
+                leds.cycleColors(LED_CYCLE_SECONDS);
+                idle();
+            }
             waitForStart();
             if (isStopRequested()) {
                 return;
@@ -168,7 +174,7 @@ public class BlueTwoTip extends LinearOpMode {
 
             while (opModeIsActive()) {
                 follower.update();
-                //leds.cycleColors(10);
+                leds.cycleColors(LED_CYCLE_SECONDS);
                 AutoCache.save(follower.pose());
                 Scheduler.execute();
                 pollenWheel.update();
@@ -190,6 +196,9 @@ public class BlueTwoTip extends LinearOpMode {
                 idle();
             }
         } finally {
+            if (leds != null) {
+                leds.disableLeds();
+            }
             Scheduler.reset();
             stopMechanisms();
             if (follower != null) {

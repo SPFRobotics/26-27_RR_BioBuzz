@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 import org.firstinspires.ftc.teamcode.Subsystems.PushbackRamp;
 import org.firstinspires.ftc.teamcode.Subsystems.Transfer;
 import org.firstinspires.ftc.teamcode.Utilities.AutoCache;
+import org.firstinspires.ftc.teamcode.Utilities.LedLights;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 @TeleOp(name = "TeleOp", group = "TeleOp")
@@ -23,6 +24,7 @@ public class Tele extends OpMode {
 
     private Follower follower;
     private Intake intake;
+    private LedLights leds;
 
     private Transfer transfer;
     private PushbackRamp pushbackRamp;
@@ -48,7 +50,9 @@ public class Tele extends OpMode {
         nectarWheel = new FlywheelNectar(hardwareMap);
         transfer = new Transfer(hardwareMap);
         pushbackRamp = new PushbackRamp(hardwareMap);
+        leds = new LedLights(hardwareMap);
         stopAll();
+        updateLeds();
 
         follower = Constants.create(hardwareMap);
         Pose startPose = AutoCache.consume();
@@ -57,6 +61,7 @@ public class Tele extends OpMode {
 
     @Override
     public void init_loop() {
+        updateLeds();
         follower.update();
         addControlTelemetry();
         telemetry.update();
@@ -77,6 +82,7 @@ public class Tele extends OpMode {
         previousBlockerButton = false;
         previousPushbackRampButton = false;
         stopAll();
+        updateLeds();
     }
 
     @Override
@@ -170,6 +176,7 @@ public class Tele extends OpMode {
         }
         pollenWheel.update();
         nectarWheel.update();
+        updateLeds();
 
         addControlTelemetry();
         telemetry.addData("Target distance (in)", distance);
@@ -178,6 +185,14 @@ public class Tele extends OpMode {
         telemetry.addData("nectarWheel target RPM", nectarWheel.getTargetRPM());
         telemetry.addData("nectarWheel actual RPM", nectarWheel.getRPM());
         telemetry.update();
+    }
+
+    private void updateLeds() {
+        boolean blockerOpen = intakeReversed || !blockerClosed;
+        boolean flywheelsAtSpeed = flywheelEnabled
+                && pollenWheel.isAtSpeed() && nectarWheel.isAtSpeed();
+        leds.setColors(blockerOpen ? LedLights.GREEN : LedLights.RED,
+                flywheelsAtSpeed ? LedLights.PINK : LedLights.BLUE);
     }
 
     private void addControlTelemetry() {
@@ -200,6 +215,9 @@ public class Tele extends OpMode {
 
     @Override
     public void stop() {
+        if (leds != null) {
+            leds.disableLeds();
+        }
         intakeEnabled = false;
         intakeReversed = false;
         flywheelEnabled = false;

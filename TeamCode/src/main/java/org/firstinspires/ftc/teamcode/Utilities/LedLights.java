@@ -4,11 +4,13 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import java.util.function.DoubleSupplier;
+
 //ROYGBIV!!!
 public class LedLights {
     ElapsedTime colorTimer = new ElapsedTime();
+    private final DoubleSupplier cycleSeconds;
     double currentColor = 0;
-    double precision = 0.001;
     boolean disabled = false;
 
     Servo leftLed = null;
@@ -16,6 +18,7 @@ public class LedLights {
 
 
     /*Constants*/
+    public static final double OFF = 0;
     public static final double RED = 0.279;
     public static final double ORANGE = 0.333;
     public static final double YELLOW = 0.388;
@@ -25,37 +28,43 @@ public class LedLights {
     public static final double BLUE = 0.611;
     public static final double INDIGO = 0.666;
     public static final double VIOLET = 0.722;
+    public static final double PINK = 0.777;
 
     private void setLeds(double pwm){
-        leftLed.setPosition(pwm);
-        rightLed.setPosition(pwm);
+        setColors(pwm, pwm);
+    }
+
+    public void setColors(double leftPwm, double rightPwm) {
+        if (disabled) {
+            return;
+        }
+        leftLed.setPosition(leftPwm);
+        rightLed.setPosition(rightPwm);
     }
 
     //Constructor
     public LedLights(HardwareMap hardwareMap) {
-        leftLed = hardwareMap.get(Servo.class, "leftLed");
-        rightLed = hardwareMap.get(Servo.class, "rightLed");
+        this(hardwareMap.get(Servo.class, "leftLed"),
+                hardwareMap.get(Servo.class, "rightLed"), new ElapsedTime()::seconds);
+    }
+
+    LedLights(Servo leftLed, Servo rightLed, DoubleSupplier cycleSeconds) {
+        this.leftLed = leftLed;
+        this.rightLed = rightLed;
+        this.cycleSeconds = cycleSeconds;
     }
 
     /**
      @param interval One interval is the amount of time in seconds it takes to get back to the start
      **/
     public void cycleColors(double interval){
-        double inty = 0.5;
-        if(interval<0.5) inty = interval;
-        if (colorTimer.seconds() >= inty/495.0/2){
-            colorTimer.reset();
-            currentColor += precision;
-            if (currentColor >= VIOLET){
-                currentColor = VIOLET;
-                precision *= -1;
-            }
-            else if (currentColor <= RED){
-                currentColor = RED;
-                precision *= -1;
-            }
-            setLeds(currentColor);
+        if (!Double.isFinite(interval) || interval <= 0) {
+            throw new IllegalArgumentException("LED cycle interval must be positive and finite");
         }
+        double phase = (cycleSeconds.getAsDouble() % interval) / interval;
+        double progress = 1.0 - Math.abs(2.0 * phase - 1.0);
+        currentColor = RED + (VIOLET - RED) * progress;
+        setLeds(currentColor);
     }
 
     //A cycle is defined as returning to 0
@@ -93,6 +102,7 @@ public class LedLights {
     }
 
     public void disableLeds(){
+        setLeds(OFF);
         disabled = true;
     }
 
