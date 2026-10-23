@@ -28,7 +28,7 @@ public class LedLights {
     public static final double BLUE = 0.611;
     public static final double INDIGO = 0.666;
     public static final double VIOLET = 0.722;
-    public static final double PINK = 0.777;
+    public static final double PINK = 0.772;
 
     private void setLeds(double pwm){
         setColors(pwm, pwm);

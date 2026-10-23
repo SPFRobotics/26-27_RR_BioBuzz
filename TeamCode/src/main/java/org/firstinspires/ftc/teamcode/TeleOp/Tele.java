@@ -169,7 +169,7 @@ public class Tele extends OpMode {
         double distance = getDistanceToTarget();
         if (flywheelEnabled && Double.isFinite(distance) && distance >= 0.0) {
             pollenWheel.runAtRPM(2700);
-            nectarWheel.runAtRPM(3300);
+            nectarWheel.runAtRPM(300);
         } else {
             pollenWheel.stop();
             nectarWheel.stop();
@@ -192,7 +192,7 @@ public class Tele extends OpMode {
         boolean flywheelsAtSpeed = flywheelEnabled
                 && pollenWheel.isAtSpeed() && nectarWheel.isAtSpeed();
         leds.setColors(blockerOpen ? LedLights.GREEN : LedLights.RED,
-                flywheelsAtSpeed ? LedLights.PINK : LedLights.BLUE);
+                flywheelsAtSpeed ? LedLights.ORANGE : LedLights.BLUE);
     }
 
     private void addControlTelemetry() {

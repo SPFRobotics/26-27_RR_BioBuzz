@@ -21,7 +21,7 @@ public class FlywheelNectar {
         public static double kD = 0.000001;
         public static double kV = 0.000353;
         public static double kS = 0.04;
-        public static double rpmTolerance = 50;
+        public static double rpmTolerance = 100;
 
     }
 
