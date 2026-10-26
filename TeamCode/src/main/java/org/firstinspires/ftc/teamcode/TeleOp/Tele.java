@@ -20,7 +20,8 @@ public class Tele extends OpMode {
     private static final Pose TARGET_POSE = new Pose(0, 0);
     private static final double PRECISION_DRIVE_SCALE = 0.35;
     private static final double PRECISION_TRIGGER_THRESHOLD = 0.1;
-    boolean fieldCentric = false;
+    private static final double REVERSE_PULSE_SECONDS = 0.05;
+    boolean fieldCentric = true;
 
     private Follower follower;
     private Intake intake;
@@ -37,7 +38,8 @@ public class Tele extends OpMode {
     private boolean blockerClosed = true;
     private boolean pushbackRampDown;
     private boolean previousIntakeButton;
-    private boolean previousReverseIntakeButton;
+    private boolean previousReversePulseButton;
+    private double reversePulseEndTime;
     private boolean previousFlywheelButton;
     private boolean previousTransferButton;
     private boolean previousBlockerButton;
@@ -56,7 +58,7 @@ public class Tele extends OpMode {
 
         follower = Constants.create(hardwareMap);
         Pose startPose = AutoCache.consume();
-        follower.setPose(new Pose(127.2438, 21.2716, 180));
+        follower.setPose(startPose != null ? startPose : Pose.zero());
     }
 
     @Override
@@ -76,7 +78,8 @@ public class Tele extends OpMode {
         blockerClosed = true;
         pushbackRampDown = false;
         previousIntakeButton = false;
-        previousReverseIntakeButton = false;
+        previousReversePulseButton = false;
+        reversePulseEndTime = 0.0;
         previousFlywheelButton = false;
         previousTransferButton = false;
         previousBlockerButton = false;
@@ -104,15 +107,23 @@ public class Tele extends OpMode {
                 -gamepad1.right_stick_x * driveScale);
         follower.update();
 
-        boolean intakeButton = gamepad1.x;
+        boolean intakeButton = gamepad1.square;
+        boolean reversePulseButton = gamepad1.circle;
         boolean reverseIntakeButton = gamepad1.right_bumper;
         boolean flywheelButton = gamepad2.left_bumper;
         boolean transferButton = gamepad2.y;
         boolean blockerButton = gamepad2.b;
         boolean pushbackRampButton = gamepad1.a;
+        intake.setReverseSpeed(-1);
+        double now = getRuntime();
+        if (reversePulseButton && !previousReversePulseButton) {
+            reversePulseEndTime = now + REVERSE_PULSE_SECONDS;
+            intake.setReverseSpeed(-0.5);
+        }
+        boolean reverseRequested = reverseIntakeButton || now < reversePulseEndTime;
 
         // Preserve the normal settings throughout reverse, including its release loop.
-        if (!reverseIntakeButton && !previousReverseIntakeButton) {
+        if (!reverseRequested && !intakeReversed) {
             if (intakeButton && !previousIntakeButton) {
                 intakeEnabled = !intakeEnabled;
             }
@@ -123,7 +134,7 @@ public class Tele extends OpMode {
                 blockerClosed = !blockerClosed;
             }
         }
-        intakeReversed = reverseIntakeButton;
+        intakeReversed = reverseRequested;
         if (flywheelButton && !previousFlywheelButton) {
             flywheelEnabled = !flywheelEnabled;
         }
@@ -132,14 +143,14 @@ public class Tele extends OpMode {
         }
 
         previousIntakeButton = intakeButton;
-        previousReverseIntakeButton = reverseIntakeButton;
+        previousReversePulseButton = reversePulseButton;
         previousFlywheelButton = flywheelButton;
         previousTransferButton = transferButton;
         previousBlockerButton = blockerButton;
         previousPushbackRampButton = pushbackRampButton;
 
         if (intakeReversed) {
-            transfer.setPower(-0.8);
+            transfer.setPower(-1);
         } else if (transferEnabled) {
             transfer.on();
         } else {
@@ -169,7 +180,7 @@ public class Tele extends OpMode {
         double distance = getDistanceToTarget();
         if (flywheelEnabled && Double.isFinite(distance) && distance >= 0.0) {
             pollenWheel.runAtRPM(2700);
-            nectarWheel.runAtRPM(300);
+            nectarWheel.runAtRPM(3000);
         } else {
             pollenWheel.stop();
             nectarWheel.stop();
@@ -202,8 +213,9 @@ public class Tele extends OpMode {
        // telemetry.addData("GP1 Right stick left/right", "Turn");
        // telemetry.addData("GP1 LT / L2 - Hold for precision driving",
              //   gamepad1.left_trigger > PRECISION_TRIGGER_THRESHOLD ? "35% speed" : "Full speed");
-       // telemetry.addData("GP1 X / Square - Intake", intakeReversed ? "Reverse" : (intakeEnabled ? "On" : "Off"));
-         telemetry.addData("reverse intake + transfer", intakeReversed ? "Held" : "Released");
+        telemetry.addData("GP1 Y / Triangle - Intake", intakeEnabled ? "On" : "Off");
+        telemetry.addLine("GP1 X / Square: reverse 300 ms; RB / R1: hold to reverse");
+        telemetry.addData("Reverse intake + transfer", intakeReversed ? "Reversing" : "Inactive");
         telemetry.addData("Pushback ramp", pushbackRampDown ? "Down" : "Up");
 
        // telemetry.addLine("Gamepad 2 - Scoring (buttons toggle)");
@@ -220,6 +232,7 @@ public class Tele extends OpMode {
         }
         intakeEnabled = false;
         intakeReversed = false;
+        reversePulseEndTime = 0.0;
         flywheelEnabled = false;
         transferEnabled = false;
         blockerClosed = true;

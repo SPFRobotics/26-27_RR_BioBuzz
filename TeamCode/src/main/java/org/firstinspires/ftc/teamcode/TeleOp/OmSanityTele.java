@@ -150,8 +150,8 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
 
         double distance = getDistanceToTarget();
         if (flywheelEnabled && Double.isFinite(distance) && distance >= 0.0) {
-            pollenWheel.runAtDistance(distance);
-            nectarWheel.runAtDistance(distance);
+            pollenWheel.runAtRPM(2700);
+            nectarWheel.runAtRPM(3500);
         } else {
             pollenWheel.stop();
             nectarWheel.stop();

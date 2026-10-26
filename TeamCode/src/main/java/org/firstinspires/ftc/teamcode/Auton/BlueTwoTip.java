@@ -36,7 +36,7 @@ public class BlueTwoTip extends LinearOpMode {
     private static final double LED_CYCLE_SECONDS = 10.0;
 
     public static double pollenRPM = 2700;
-    public static double nectarRPM = 3300;
+    public static double nectarRPM = -6000;
     public static double flywheelSpinupTimeoutMs = 2000;
     public static double preloadShootMs = 2800;
     public static double cornerShootMs = 3000;
@@ -106,14 +106,15 @@ public class BlueTwoTip extends LinearOpMode {
                 shoot("Shoot 4 preload", preloadShootMs),
                 step("intake Off", () -> {
                     intake.stop();
-                    waitMs(800);
+                    waitMs(500);
                 }),
-                shoot("Shoot 4 preload", preloadShootMs),
+                shoot("Shoot 4 preload", 300),
                 step("Intake corner", () -> {
                     transfer.block();
                     intake.intake();
                 }),
                 followToEnd(intakeCorner()),
+                waitMs(500),
                 //followToEnd(strafe()),
                 step("Travel through hive", () -> {
                     //intake.stop();
@@ -281,7 +282,7 @@ public class BlueTwoTip extends LinearOpMode {
         return sequential(
                 step(name + " - spin up", this::startFlywheels),
                 waitMs(flywheelSpinupTimeoutMs)
-                        .until(() -> pollenWheel.isAtSpeed() && nectarWheel.isAtSpeed()),
+                        .until(() -> pollenWheel.isAtSpeed()),
                 step(name + " - feed", () -> {
                     transfer.release();
                     transfer.on();

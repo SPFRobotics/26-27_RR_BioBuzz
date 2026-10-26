@@ -28,10 +28,11 @@ public class Intake {
     public void intake() {
         setPower(intake);
     }
-
+    public void setReverseSpeed(double speed){outtake=speed;}
     public void outtake() {
         setPower(outtake);
     }
+
 
     public void stop() {
         motor.setPower(0.0);
