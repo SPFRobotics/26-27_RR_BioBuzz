@@ -1,5 +1,5 @@
 {
-  "version": "2.6.0",
+  "version": "2.6.1",
   "header": {
     "info": "Created with Turtle Tracer",
     "copyright": "Copyright 2026 Matthew Allen. Licensed under the Modified Apache License, Version 2.0.",
@@ -12,7 +12,7 @@
     "locked": false,
     "heading": "linear",
     "startDeg": 0,
-    "endDeg": 0
+    "endDeg": -180
   },
   "lines": [
     {
@@ -100,8 +100,8 @@
         "y": 14.589181791990793,
         "heading": "linear",
         "startDeg": 180,
-        "endDeg": 270,
-        "reverse": true
+        "endDeg": -90,
+        "reverse": false
       },
       "controlPoints": [
         {
@@ -126,9 +126,9 @@
         "x": 80.54054362926941,
         "y": 11.38812089261617,
         "heading": "linear",
-        "startDeg": 270,
+        "startDeg": -90,
         "endDeg": 180,
-        "reverse": true
+        "reverse": false
       },
       "controlPoints": [
         {
@@ -155,7 +155,7 @@
         "heading": "constant",
         "startDeg": 180,
         "endDeg": 180,
-        "reverse": true,
+        "reverse": false,
         "degrees": 180
       },
       "controlPoints": [
