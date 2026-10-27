@@ -60,24 +60,49 @@ public class BlueTwoTip extends LinearOpMode {
 
 
 
-    private final PoseFactory poseFactory = PoseFactory.degrees();
+    private final Pose start;
+    private final Pose intakeCorner;
+    private final Pose travelThroughHive;
+    private final Pose travelThroughHiveControl1;
+    private final Pose travelThroughHiveControl2;
+    private final Pose travelThroughHiveSegment1Heading;
+    private final Pose travelThroughHiveSegment3Start;
+    private final Pose travelThroughHiveSegment3End;
+    private final Pose runToFlowerStart;
+    private final Pose runToFlower;
+    private final Pose runToFlowerControl1;
+    private final Pose returnFromFlowerStart;
+    private final Pose returnFromFlower;
+    private final Pose returnFromFlowerControl1;
+    private final Pose park;
+    private final Pose parkControl1;
 
-    private final Pose start = poseFactory.of(91.458, 132.8089, 0);
-    private final Pose intakeCorner = poseFactory.of(133.1674, 133.588, 0);
-    private final Pose travelThroughHive = poseFactory.of(80.9863, 11.4285, 180);
-    private final Pose travelThroughHiveControl1 = poseFactory.of(69.4789, 140.1208, 0);
-    private final Pose travelThroughHiveControl2 = poseFactory.of(85.3224, 61.3505, 0);
-    private final Pose travelThroughHiveSegment1Heading = poseFactory.of(80.9863, 11.4285, 0);
-    private final Pose travelThroughHiveSegment3Start = poseFactory.of(80.9863, 11.4285, 89.7453);
-    private final Pose travelThroughHiveSegment3End = poseFactory.of(80.9863, 11.4285, 180);
-    private final Pose runToFlowerStart = poseFactory.of(80.9863, 11.4285, 180);
-    private final Pose runToFlower = poseFactory.of(93.6955, 14.5892, 270);
-    private final Pose runToFlowerControl1 = poseFactory.of(105.0053, 59.2547, 0);
-    private final Pose returnFromFlowerStart = poseFactory.of(93.6955, 14.5892, 270);
-    private final Pose returnFromFlower = poseFactory.of(80.5405, 11.3881, 180);
-    private final Pose returnFromFlowerControl1 = poseFactory.of(104.4489, 60.1466, 0);
-    private final Pose park = poseFactory.of(127.2438, 21.2716, 180);
-    private final Pose parkControl1 = poseFactory.of(93.6272, 38.1411, 0);
+    public BlueTwoTip() {
+        this(PoseFactory.degrees());
+    }
+
+    protected AutoCache.Alliance alliance() {
+        return AutoCache.Alliance.BLUE;
+    }
+
+    protected BlueTwoTip(PoseFactory poseFactory) {
+        start = poseFactory.of(91.458, 132.8089, 0);
+        intakeCorner = poseFactory.of(133.1674, 133.588, 0);
+        travelThroughHive = poseFactory.of(80.9863, 11.4285, 180);
+        travelThroughHiveControl1 = poseFactory.of(69.4789, 140.1208, 0);
+        travelThroughHiveControl2 = poseFactory.of(85.3224, 61.3505, 0);
+        travelThroughHiveSegment1Heading = poseFactory.of(80.9863, 11.4285, 0);
+        travelThroughHiveSegment3Start = poseFactory.of(80.9863, 11.4285, 89.7453);
+        travelThroughHiveSegment3End = poseFactory.of(80.9863, 11.4285, 180);
+        runToFlowerStart = poseFactory.of(80.9863, 11.4285, 180);
+        runToFlower = poseFactory.of(93.6955, 14.5892, 270);
+        runToFlowerControl1 = poseFactory.of(105.0053, 59.2547, 0);
+        returnFromFlowerStart = poseFactory.of(93.6955, 14.5892, 270);
+        returnFromFlower = poseFactory.of(80.5405, 11.3881, 180);
+        returnFromFlowerControl1 = poseFactory.of(104.4489, 60.1466, 0);
+        park = poseFactory.of(127.2438, 21.2716, 180);
+        parkControl1 = poseFactory.of(93.6272, 38.1411, 0);
+    }
 
     public Path intakeCorner() {
         return Paths.line(start, intakeCorner).constant(intakeCorner);
@@ -176,7 +201,7 @@ public class BlueTwoTip extends LinearOpMode {
             while (opModeIsActive()) {
                 follower.update();
                 leds.cycleColors(LED_CYCLE_SECONDS);
-                AutoCache.save(follower.pose());
+                AutoCache.save(follower.pose(), alliance());
                 Scheduler.execute();
                 pollenWheel.update();
                 nectarWheel.update();
@@ -206,7 +231,7 @@ public class BlueTwoTip extends LinearOpMode {
                 follower.stop();
                 follower.update();
                 if (autonomousStarted) {
-                    AutoCache.save(follower.pose());
+                    AutoCache.save(follower.pose(), alliance());
                 }
             }
         }

@@ -1,5 +1,5 @@
 {
-  "version": "2.5.1",
+  "version": "2.6.0",
   "header": {
     "info": "Created with Turtle Tracer",
     "copyright": "Copyright 2026 Matthew Allen. Licensed under the Modified Apache License, Version 2.0.",
@@ -10,10 +10,9 @@
     "y": 132.80886824253122,
     "name": "Start",
     "locked": false,
-    "headingDeg": 90,
     "heading": "linear",
     "startDeg": 0,
-    "endDeg": 180
+    "endDeg": 0
   },
   "lines": [
     {
@@ -28,14 +27,11 @@
       "kind": "atomic",
       "endPoint": {
         "x": 133.16737965735635,
-        "y": 133.58801303475803
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "reverse": false,
+        "y": 133.58801303475803,
+        "heading": "constant",
         "degrees": 0
       },
+      "controlPoints": [],
       "eventMarkers": [],
       "hidden": false
     },
@@ -56,35 +52,25 @@
         "segments": [
           {
             "tStart": 0,
-            "tEnd": 0.117,
+            "tEnd": 0.11660214206231453,
             "heading": "constant",
-            "reverse": false,
             "degrees": 0
           },
           {
-            "tStart": 0.117,
-            "tEnd": 0.5585,
+            "tStart": 0.11660214206231453,
+            "tEnd": 0.71,
             "heading": "tangential",
-            "reverse": true,
-            "degrees": 0
+            "reverse": true
           },
           {
-            "tStart": 0.5585,
-            "tEnd": 0.77925,
-            "heading": "tangential",
-            "reverse": true,
-            "degrees": 0
-          },
-          {
-            "tStart": 0.77925,
+            "tStart": 0.71,
             "tEnd": 1,
             "heading": "linear",
-            "reverse": true,
-            "degrees": 0,
-            "startDeg": 0,
+            "startDeg": 90,
             "endDeg": 180
           }
-        ]
+        ],
+        "reverse": true
       },
       "controlPoints": [
         {
@@ -96,45 +82,6 @@
           "y": 61.350527549824136
         }
       ],
-      "heading": {
-        "type": "piecewise",
-        "reverse": true,
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.11660214206231453,
-              "interpolationType": "constant",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "degrees": 0
-              }
-            },
-            {
-              "startProgress": 0.11660214206231453,
-              "endProgress": 0.7804096346439169,
-              "interpolationType": "tangential",
-              "reversed": true,
-              "continueFromPrevious": false
-            },
-            {
-              "startProgress": 0.7804096346439169,
-              "endProgress": 1,
-              "interpolationType": "linear",
-              "reversed": false,
-              "continueFromPrevious": true,
-              "parameters": {
-                "startDeg": 0,
-                "endDeg": 180
-              }
-            }
-          ]
-        },
-        "degrees": 0,
-        "startDeg": 0,
-        "endDeg": 180
-      },
       "eventMarkers": [],
       "hidden": false
     },
@@ -153,7 +100,8 @@
         "y": 14.589181791990793,
         "heading": "linear",
         "startDeg": 180,
-        "endDeg": -90
+        "endDeg": 270,
+        "reverse": true
       },
       "controlPoints": [
         {
@@ -161,12 +109,6 @@
           "y": 59.2546801729191
         }
       ],
-      "heading": {
-        "type": "linear",
-        "reverse": true,
-        "startDeg": 180,
-        "endDeg": 270
-      },
       "eventMarkers": [],
       "hidden": false
     },
@@ -184,8 +126,9 @@
         "x": 80.54054362926941,
         "y": 11.38812089261617,
         "heading": "linear",
-        "startDeg": -90,
-        "endDeg": 180
+        "startDeg": 270,
+        "endDeg": 180,
+        "reverse": true
       },
       "controlPoints": [
         {
@@ -193,12 +136,6 @@
           "y": 60.1466350726313
         }
       ],
-      "heading": {
-        "type": "linear",
-        "reverse": true,
-        "startDeg": 270,
-        "endDeg": 180
-      },
       "eventMarkers": [],
       "hidden": false
     },
@@ -215,9 +152,11 @@
       "endPoint": {
         "x": 127.24379462321029,
         "y": 21.271633055398222,
-        "heading": "linear",
+        "heading": "constant",
         "startDeg": 180,
-        "endDeg": 180
+        "endDeg": 180,
+        "reverse": true,
+        "degrees": 180
       },
       "controlPoints": [
         {
@@ -225,11 +164,6 @@
           "y": 38.141109298531816
         }
       ],
-      "heading": {
-        "type": "constant",
-        "reverse": true,
-        "degrees": 180
-      },
       "eventMarkers": [],
       "hidden": false
     }

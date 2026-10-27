@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Subsystems.FlywheelNectar;
 import org.firstinspires.ftc.teamcode.Subsystems.FlywheelPollen;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
+import org.firstinspires.ftc.teamcode.Subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.Subsystems.PushbackRamp;
 import org.firstinspires.ftc.teamcode.Subsystems.Transfer;
 import org.firstinspires.ftc.teamcode.Utilities.AutoCache;
@@ -26,6 +27,7 @@ public class Tele extends OpMode {
     private Follower follower;
     private Intake intake;
     private LedLights leds;
+    private Limelight limelight;
 
     private Transfer transfer;
     private PushbackRamp pushbackRamp;
@@ -33,6 +35,7 @@ public class Tele extends OpMode {
     private FlywheelNectar nectarWheel;
     private boolean intakeEnabled;
     private boolean intakeReversed;
+    private boolean intakeReverseHeld;
     private boolean flywheelEnabled;
     private boolean transferEnabled;
     private boolean blockerClosed = true;
@@ -57,14 +60,18 @@ public class Tele extends OpMode {
         updateLeds();
 
         follower = Constants.create(hardwareMap);
-        Pose startPose = AutoCache.consume();
+        AutoCache.Snapshot handoff = AutoCache.consumeSnapshot();
+        Pose startPose = handoff.pose;
         follower.setPose(startPose != null ? startPose : Pose.zero());
+        limelight = new Limelight(hardwareMap, new Limelight.Config(), handoff.alliance);
+        limelight.start();
     }
 
     @Override
     public void init_loop() {
         updateLeds();
         follower.update();
+        limelight.update();
         addControlTelemetry();
         telemetry.update();
     }
@@ -73,6 +80,7 @@ public class Tele extends OpMode {
     public void start() {
         intakeEnabled = false;
         intakeReversed = false;
+        intakeReverseHeld = false;
         flywheelEnabled = false;
         transferEnabled = false;
         blockerClosed = true;
@@ -101,15 +109,16 @@ public class Tele extends OpMode {
             strafe = -forward * Math.sin(heading) + strafe * Math.cos(heading);
             forward = robotForward;
         }
+        limelight.update();
         follower.manual(
                 forward,
                 strafe,
-                -gamepad1.right_stick_x * driveScale);
+                limelight.driveTurn(gamepad1.dpad_up, -gamepad1.right_stick_x, driveScale));
         follower.update();
 
         boolean intakeButton = gamepad1.square;
         boolean reversePulseButton = gamepad1.circle;
-        boolean reverseIntakeButton = gamepad1.right_bumper;
+        intakeReverseHeld = gamepad1.right_bumper;
         boolean flywheelButton = gamepad2.left_bumper;
         boolean transferButton = gamepad2.y;
         boolean blockerButton = gamepad2.b;
@@ -120,7 +129,7 @@ public class Tele extends OpMode {
             reversePulseEndTime = now + REVERSE_PULSE_SECONDS;
             intake.setReverseSpeed(-0.5);
         }
-        boolean reverseRequested = reverseIntakeButton || now < reversePulseEndTime;
+        boolean reverseRequested = intakeReverseHeld || now < reversePulseEndTime;
 
         // Preserve the normal settings throughout reverse, including its release loop.
         if (!reverseRequested && !intakeReversed) {
@@ -156,7 +165,8 @@ public class Tele extends OpMode {
         } else {
             transfer.off();
         }
-        if (intakeReversed) {
+        // Only held reverse lowers the blocker; a burst preserves its normal setting.
+        if (intakeReverseHeld) {
             transfer.release();
         } else if (blockerClosed) {
             transfer.block();
@@ -199,7 +209,7 @@ public class Tele extends OpMode {
     }
 
     private void updateLeds() {
-        boolean blockerOpen = intakeReversed || !blockerClosed;
+        boolean blockerOpen = intakeReverseHeld || !blockerClosed;
         boolean flywheelsAtSpeed = flywheelEnabled
                 && pollenWheel.isAtSpeed() && nectarWheel.isAtSpeed();
         leds.setColors(blockerOpen ? LedLights.GREEN : LedLights.RED,
@@ -221,8 +231,10 @@ public class Tele extends OpMode {
        // telemetry.addLine("Gamepad 2 - Scoring (buttons toggle)");
         telemetry.addData("Flywheels: ", flywheelEnabled ? "On" : "Off");
         //telemetry.addData("GP2 Y / Triangle - Transfer", intakeReversed ? "Reverse" : (transferEnabled ? "On" : "Off"));
-        telemetry.addData("Blocker: ", intakeReversed ? "Down (reverse)" : (blockerClosed ? "Closed" : "Open"));
+        telemetry.addData("Blocker: ", intakeReverseHeld ? "Down (reverse)" : (blockerClosed ? "Closed" : "Open"));
         telemetry.addData("Pos: ", follower.pose());
+        telemetry.addData("GP1 D-pad Up - Hold to aim", gamepad1.dpad_up ? "Held" : "Manual turn");
+        limelight.addTelemetry(telemetry);
     }
 
     @Override
@@ -232,6 +244,7 @@ public class Tele extends OpMode {
         }
         intakeEnabled = false;
         intakeReversed = false;
+        intakeReverseHeld = false;
         reversePulseEndTime = 0.0;
         flywheelEnabled = false;
         transferEnabled = false;
@@ -239,9 +252,15 @@ public class Tele extends OpMode {
         pushbackRampDown = false;
         stopAll();
 
-        if (follower != null) {
-            follower.stop();
-            follower.update();
+        try {
+            if (follower != null) {
+                follower.stop();
+                follower.update();
+            }
+        } finally {
+            if (limelight != null) {
+                limelight.stop();
+            }
         }
     }
     private double getDistanceToTarget() {
