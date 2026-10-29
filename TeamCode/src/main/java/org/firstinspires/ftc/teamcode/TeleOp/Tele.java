@@ -47,6 +47,8 @@ public class Tele extends OpMode {
     private boolean previousTransferButton;
     private boolean previousBlockerButton;
     private boolean previousPushbackRampButton;
+    private boolean previousHeadingResetButton;
+    private double fieldCentricHeadingOffset;
 
     @Override
     public void init() {
@@ -92,19 +94,26 @@ public class Tele extends OpMode {
         previousTransferButton = false;
         previousBlockerButton = false;
         previousPushbackRampButton = false;
+        previousHeadingResetButton = false;
+        fieldCentricHeadingOffset = 0.0;
         stopAll();
         updateLeds();
     }
 
     @Override
     public void loop() {
+        boolean headingResetButton = gamepad1.options;
+        if (headingResetButton && !previousHeadingResetButton) {
+            fieldCentricHeadingOffset = Math.toRadians(180) - follower.pose().heading();
+        }
+        previousHeadingResetButton = headingResetButton;
 
         double driveScale = gamepad1.left_trigger > PRECISION_TRIGGER_THRESHOLD
                 ? PRECISION_DRIVE_SCALE : 1.0;
         double forward = -gamepad1.left_stick_y * driveScale;
         double strafe = -gamepad1.left_stick_x * driveScale;
         if (fieldCentric) {
-            double heading = follower.pose().heading();
+            double heading = follower.pose().heading() + fieldCentricHeadingOffset;
             double robotForward = forward * Math.cos(heading) + strafe * Math.sin(heading);
             strafe = -forward * Math.sin(heading) + strafe * Math.cos(heading);
             forward = robotForward;
@@ -233,6 +242,7 @@ public class Tele extends OpMode {
         //telemetry.addData("GP2 Y / Triangle - Transfer", intakeReversed ? "Reverse" : (transferEnabled ? "On" : "Off"));
         telemetry.addData("Blocker: ", intakeReverseHeld ? "Down (reverse)" : (blockerClosed ? "Closed" : "Open"));
         telemetry.addData("Pos: ", follower.pose());
+        telemetry.addLine("GP1 Options: reset field-centric heading to 90 degrees");
         telemetry.addData("GP1 D-pad Up - Hold to aim", gamepad1.dpad_up ? "Held" : "Manual turn");
         limelight.addTelemetry(telemetry);
     }
