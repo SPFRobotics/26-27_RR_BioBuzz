@@ -31,7 +31,7 @@ import org.firstinspires.ftc.teamcode.Utilities.LedLights;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 @Config
-@Autonomous(name = "B- TwoTip", group = "BlueAuto")
+@Autonomous(name = "B- TwoTip", group = "BlueAuto", preselectTeleOp = "TeleOp")
 public class BlueTwoTip extends LinearOpMode {
     private static final double LED_CYCLE_SECONDS = 10.0;
 
@@ -133,7 +133,7 @@ public class BlueTwoTip extends LinearOpMode {
                     intake.stop();
                     waitMs(500);
                 }),
-                shoot("Shoot 4 preload", 300),
+                shoot("Shoot 4 preload", 700),
                 step("Intake corner", () -> {
                     transfer.block();
                     intake.intake();
@@ -148,6 +148,11 @@ public class BlueTwoTip extends LinearOpMode {
                 }),
                 followToEnd(travelThroughHive()),
                 shoot("Shoot corner collection", cornerShootMs),
+                step("intake Off", () -> {
+                    intake.stop();
+                    waitMs(500);
+                }),
+                shoot("Shoot 4 preload", 700),
                 step("Run to flower", () -> intake.intake()),
                 parallel(
                         followToEnd(runToFlower()),
@@ -162,6 +167,11 @@ public class BlueTwoTip extends LinearOpMode {
                 returnToShootingSpot(returnFromFlower()),
                 instant(() -> intake.stop()),
                 shoot("Shoot flower collection", flowerShootMs),
+                step("intake Off", () -> {
+                    intake.stop();
+                    waitMs(500);
+                }),
+                shoot("Shoot 4 preload", 700),
                 step("Park", () -> { }),
                 followToEnd(park()),
                 step("Complete", this::stopMechanisms)

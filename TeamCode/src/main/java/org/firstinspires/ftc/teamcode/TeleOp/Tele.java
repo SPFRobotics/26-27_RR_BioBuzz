@@ -190,7 +190,7 @@ public class Tele extends OpMode {
         double distance = getDistanceToTarget();
         if (flywheelEnabled && Double.isFinite(distance) && distance >= 0.0) {
             pollenWheel.runAtRPM(2700);
-            nectarWheel.runAtRPM(3000);
+            nectarWheel.runAtRPM(3600);
         } else {
             pollenWheel.stop();
             nectarWheel.stop();
