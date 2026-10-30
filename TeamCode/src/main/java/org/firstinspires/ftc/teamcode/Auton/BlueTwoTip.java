@@ -38,9 +38,9 @@ public class BlueTwoTip extends LinearOpMode {
     public static double pollenRPM = 2700;
     public static double nectarRPM = -6000;
     public static double flywheelSpinupTimeoutMs = 2000;
-    public static double preloadShootMs = 2800;
-    public static double cornerShootMs = 3000;
-    public static double flowerShootMs = 3000;
+    public static double preloadShootMs = 2000;
+    public static double cornerShootMs = 2000;
+    public static double flowerShootMs = 2000;
     public static double flowerIntakeMs = 2000;
     // Distance to either side of the flower intake pose, in robot-relative inches.
     public static double flowerStrafeInches = 1.5;
@@ -68,12 +68,16 @@ public class BlueTwoTip extends LinearOpMode {
     private final Pose travelThroughHiveSegment1Heading;
     private final Pose travelThroughHiveSegment3Start;
     private final Pose travelThroughHiveSegment3End;
-    private final Pose runToFlowerStart;
     private final Pose runToFlower;
     private final Pose runToFlowerControl1;
-    private final Pose returnFromFlowerStart;
+    private final Pose runToFlowerSegment1Start;
+    private final Pose runToFlowerSegment1End;
+    private final Pose runToFlowerSegment2Heading;
     private final Pose returnFromFlower;
     private final Pose returnFromFlowerControl1;
+    private final Pose returnFromFlowerSegment1Heading;
+    private final Pose returnFromFlowerSegment2Start;
+    private final Pose returnFromFlowerSegment2End;
     private final Pose park;
     private final Pose parkControl1;
 
@@ -86,22 +90,26 @@ public class BlueTwoTip extends LinearOpMode {
     }
 
     protected BlueTwoTip(PoseFactory poseFactory) {
-        start = poseFactory.of(91.458, 132.8089, 0);
-        intakeCorner = poseFactory.of(133.1674, 133.588, 0);
+        start = poseFactory.of(89.8739, 132.3744, 0);
+        intakeCorner = poseFactory.of(132, 132.5472, 0);
         travelThroughHive = poseFactory.of(80.9863, 11.4285, 180);
         travelThroughHiveControl1 = poseFactory.of(69.4789, 140.1208, 0);
         travelThroughHiveControl2 = poseFactory.of(85.3224, 61.3505, 0);
         travelThroughHiveSegment1Heading = poseFactory.of(80.9863, 11.4285, 0);
-        travelThroughHiveSegment3Start = poseFactory.of(80.9863, 11.4285, 89.7453);
+        travelThroughHiveSegment3Start = poseFactory.of(80.9863, 11.4285, 89.7949);
         travelThroughHiveSegment3End = poseFactory.of(80.9863, 11.4285, 180);
-        runToFlowerStart = poseFactory.of(80.9863, 11.4285, 180);
-        runToFlower = poseFactory.of(93.6955, 14.5892, 270);
-        runToFlowerControl1 = poseFactory.of(105.0053, 59.2547, 0);
-        returnFromFlowerStart = poseFactory.of(93.6955, 14.5892, 270);
+        runToFlower = poseFactory.of(94.8616, 17, -90);
+        runToFlowerControl1 = poseFactory.of(83.1872, 60.645, 0);
+        runToFlowerSegment1Start = poseFactory.of(94.8616, 17, 180);
+        runToFlowerSegment1End = poseFactory.of(94.8616, 17, 270);
+        runToFlowerSegment2Heading = poseFactory.of(94.8616, 17, 270);
         returnFromFlower = poseFactory.of(80.5405, 11.3881, 180);
-        returnFromFlowerControl1 = poseFactory.of(104.4489, 60.1466, 0);
-        park = poseFactory.of(127.2438, 21.2716, 180);
-        parkControl1 = poseFactory.of(93.6272, 38.1411, 0);
+        returnFromFlowerControl1 = poseFactory.of(83.051, 61.3093, 0);
+        returnFromFlowerSegment1Heading = poseFactory.of(80.5405, 11.3881, 270);
+        returnFromFlowerSegment2Start = poseFactory.of(80.5405, 11.3881, 270);
+        returnFromFlowerSegment2End = poseFactory.of(80.5405, 11.3881, 180);
+        park = poseFactory.of(125.2438, 21.2716, 180);
+        parkControl1 = poseFactory.of(94.1465, 38.3028, 0);
     }
 
     public Path intakeCorner() {
@@ -113,11 +121,17 @@ public class BlueTwoTip extends LinearOpMode {
     }
 
     public Path runToFlower() {
-        return Paths.curve(runToFlowerStart, runToFlowerControl1, runToFlower).linear(runToFlowerStart, runToFlower);
+        return Paths.curve(travelThroughHive, runToFlowerControl1, runToFlower)
+                .heading(Interpolator.piecewise()
+                        .until(0.5, Interpolator.linear(runToFlowerSegment1Start, runToFlowerSegment1End))
+                        .until(1, Interpolator.constant(runToFlowerSegment2Heading)));
     }
 
     public Path returnFromFlower() {
-        return Paths.curve(returnFromFlowerStart, returnFromFlowerControl1, returnFromFlower).linear(returnFromFlowerStart, returnFromFlower);
+        return Paths.curve(runToFlower, returnFromFlowerControl1, returnFromFlower)
+                .heading(Interpolator.piecewise()
+                        .until(0.5, Interpolator.constant(returnFromFlowerSegment1Heading))
+                        .until(1, Interpolator.linear(returnFromFlowerSegment2Start, returnFromFlowerSegment2End)));
     }
 
     public Path park() {
@@ -133,7 +147,7 @@ public class BlueTwoTip extends LinearOpMode {
                     intake.stop();
                     waitMs(500);
                 }),
-                shoot("Shoot 4 preload", 700),
+                shoot("Shoot 4 preload", 1500),
                 step("Intake corner", () -> {
                     transfer.block();
                     intake.intake();
@@ -152,7 +166,7 @@ public class BlueTwoTip extends LinearOpMode {
                     intake.stop();
                     waitMs(500);
                 }),
-                shoot("Shoot 4 preload", 700),
+                shoot("Shoot 4 preload", 1500),
                 step("Run to flower", () -> intake.intake()),
                 parallel(
                         followToEnd(runToFlower()),
@@ -171,7 +185,7 @@ public class BlueTwoTip extends LinearOpMode {
                     intake.stop();
                     waitMs(500);
                 }),
-                shoot("Shoot 4 preload", 700),
+                shoot("Shoot 4 preload", 1500),
                 step("Park", () -> { }),
                 followToEnd(park()),
                 step("Complete", this::stopMechanisms)
@@ -377,5 +391,5 @@ public class BlueTwoTip extends LinearOpMode {
         return Paths.line(returnFromFlower, park).constant(park);
     }
     */
-    }
+}
 
