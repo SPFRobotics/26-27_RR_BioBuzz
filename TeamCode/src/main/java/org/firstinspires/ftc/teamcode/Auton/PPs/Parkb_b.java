@@ -25,8 +25,8 @@ public class Parkb_b extends LinearOpMode {
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose start = poseFactory.of(128.314, 47.2438, 90);
-    private final Pose path1 = poseFactory.of(132.8907, 62.804, 90);
+    private final Pose path1 = poseFactory.of(128.314, 47.2438, 90);
+    private final Pose  start = poseFactory.of(132.8907, 62.804, 90);
 
     // Autonomous routine
     public Command autoRoutine() {

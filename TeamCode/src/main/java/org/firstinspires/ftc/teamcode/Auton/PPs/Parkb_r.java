@@ -26,8 +26,8 @@ public class Parkb_r extends LinearOpMode {
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
     // Blue park rotated 180 degrees: (x, y, heading) -> (144 - x, 144 - y, heading + 180).
-    private final Pose start = poseFactory.of(15.686, 96.7562, 270);
-    private final Pose path1 = poseFactory.of(11.1093, 81.196, 270);
+    private final Pose path1  = poseFactory.of(15.686, 96.7562, 270);
+    private final Pose start = poseFactory.of(11.1093, 81.196, 270);
 
     // Autonomous routine
     public Command autoRoutine() {

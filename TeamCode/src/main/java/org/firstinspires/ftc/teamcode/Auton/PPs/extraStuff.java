@@ -11,16 +11,7 @@ import com.pedropathing.paths.interpolator.Interpolator;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 public class extraStuff {
-
-    /* ============================================================= *
-     *                 Turtle Tracer — Auto-Generated                *
-     *                                                               *
-     *  Version: 2.6.1.                                              *
-     *  Copyright (c) 2026 Matthew Allen                             *
-     *                                                               *
-     *  THIS FILE IS AUTO-GENERATED — DO NOT EDIT MANUALLY.          *
-     *  Changes will be overwritten when regenerated.                *
-     * ============================================================= */
+    
 
     public static class Paths {
 
