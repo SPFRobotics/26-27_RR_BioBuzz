@@ -6,8 +6,8 @@
     "link": "https://github.com/Mallen220/TurtleTracer"
   },
   "startPoint": {
-    "x": 91.45803922625564,
-    "y": 132.80886824253122,
+    "x": 89.87,
+    "y": 133.58801303475803,
     "name": "Start",
     "locked": false,
     "heading": "linear",
@@ -26,8 +26,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 133.16737965735635,
-        "y": 133.58801303475803,
+        "x": 133.29,
+        "y": 133.7,
         "heading": "constant",
         "degrees": 0
       },
@@ -46,8 +46,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 80.9863350625012,
-        "y": 11.428506823111011,
+        "x": 83.24425345687031,
+        "y": 15.22,
         "heading": "piecewise",
         "segments": [
           {
@@ -74,12 +74,12 @@
       },
       "controlPoints": [
         {
-          "x": 69.478898007034,
-          "y": 140.12075029308326
+          "x": 70.48241729342031,
+          "y": 137.48651216631924
         },
         {
-          "x": 85.32239155920283,
-          "y": 61.350527549824136
+          "x": 86.82767048878226,
+          "y": 59.84524862024471
         }
       ],
       "eventMarkers": [],
@@ -96,12 +96,31 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 93.69547680783636,
-        "y": 14.589181791990793,
-        "heading": "linear",
+        "x": 96.71,
+        "y": 15.22,
+        "heading": "piecewise",
         "startDeg": 180,
         "endDeg": -90,
-        "reverse": false
+        "reverse": false,
+        "segments": [
+          {
+            "tStart": 0,
+            "tEnd": 0.5,
+            "heading": "linear",
+            "reverse": false,
+            "startDeg": 180,
+            "endDeg": 270
+          },
+          {
+            "tStart": 0.5,
+            "tEnd": 1,
+            "heading": "constant",
+            "reverse": false,
+            "startDeg": 180,
+            "endDeg": 270,
+            "degrees": -90
+          }
+        ]
       },
       "controlPoints": [
         {
@@ -110,7 +129,8 @@
         }
       ],
       "eventMarkers": [],
-      "hidden": false
+      "hidden": false,
+      "maxSpeed": 40
     },
     {
       "id": "line-mutvsl91-mojaf9",
@@ -123,8 +143,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 80.54054362926941,
-        "y": 11.38812089261617,
+        "x": 83.24425345687031,
+        "y": 15.22,
         "heading": "linear",
         "startDeg": -90,
         "endDeg": 180,
@@ -132,12 +152,13 @@
       },
       "controlPoints": [
         {
-          "x": 104.4489014749563,
-          "y": 60.1466350726313
+          "x": 104.5743413857546,
+          "y": 59.14311578624502
         }
       ],
       "eventMarkers": [],
-      "hidden": false
+      "hidden": false,
+      "maxSpeed": 40
     },
     {
       "id": "line-mutvtkyo-sqgo9x",

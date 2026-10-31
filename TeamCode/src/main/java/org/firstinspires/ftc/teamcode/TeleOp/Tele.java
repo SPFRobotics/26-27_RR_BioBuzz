@@ -48,6 +48,7 @@ public class Tele extends OpMode {
     private boolean previousBlockerButton;
     private boolean previousPushbackRampButton;
     private boolean previousHeadingResetButton;
+    private AutoCache.Alliance driveAlliance = AutoCache.Alliance.UNKNOWN;
     private double fieldCentricHeadingOffset;
 
     @Override
@@ -63,6 +64,7 @@ public class Tele extends OpMode {
 
         follower = Constants.create(hardwareMap);
         AutoCache.Snapshot handoff = AutoCache.consumeSnapshot();
+        driveAlliance = handoff.alliance;
         Pose startPose = handoff.pose;
         follower.setPose(startPose != null ? startPose : Pose.zero());
         limelight = new Limelight(hardwareMap, new Limelight.Config(), handoff.alliance);
@@ -95,7 +97,8 @@ public class Tele extends OpMode {
         previousBlockerButton = false;
         previousPushbackRampButton = false;
         previousHeadingResetButton = false;
-        fieldCentricHeadingOffset = 0.0;
+        // Blue's existing field directions are correct; red drivers face the opposite way.
+        fieldCentricHeadingOffset = driveAlliance == AutoCache.Alliance.RED ? Math.PI : 0.0;
         stopAll();
         updateLeds();
     }
@@ -104,6 +107,7 @@ public class Tele extends OpMode {
     public void loop() {
         boolean headingResetButton = gamepad1.options;
         if (headingResetButton && !previousHeadingResetButton) {
+            // Recalibrate with the robot's front pointing toward the driver station.
             fieldCentricHeadingOffset = Math.toRadians(180) - follower.pose().heading();
         }
         previousHeadingResetButton = headingResetButton;
@@ -242,7 +246,7 @@ public class Tele extends OpMode {
         //telemetry.addData("GP2 Y / Triangle - Transfer", intakeReversed ? "Reverse" : (transferEnabled ? "On" : "Off"));
         telemetry.addData("Blocker: ", intakeReverseHeld ? "Down (reverse)" : (blockerClosed ? "Closed" : "Open"));
         telemetry.addData("Pos: ", follower.pose());
-        telemetry.addLine("GP1 Options: reset field-centric heading to 90 degrees");
+        telemetry.addLine("GP1 Options: reset drive reference with robot facing your driver station");
         telemetry.addData("GP1 D-pad Up - Hold to aim", gamepad1.dpad_up ? "Held" : "Manual turn");
         limelight.addTelemetry(telemetry);
     }

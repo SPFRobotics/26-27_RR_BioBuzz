@@ -31,7 +31,7 @@ import org.firstinspires.ftc.teamcode.Utilities.LedLights;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 @Config
-@Autonomous(name = "B- TwoTip", group = "BlueAuto", preselectTeleOp = "TeleOp")
+@Autonomous(name = "B- TwoTip", group = "Blueton", preselectTeleOp = "TeleOp")
 public class BlueTwoTip extends LinearOpMode {
     private static final double LED_CYCLE_SECONDS = 10.0;
 
