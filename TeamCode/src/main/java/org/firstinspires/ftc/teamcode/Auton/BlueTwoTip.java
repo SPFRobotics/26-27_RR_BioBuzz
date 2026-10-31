@@ -92,24 +92,24 @@ public class BlueTwoTip extends LinearOpMode {
     protected BlueTwoTip(PoseFactory poseFactory) {
         start = poseFactory.of(89.8739, 132.3744, 0);
         intakeCorner = poseFactory.of(132, 132.5472, 0);
-        travelThroughHive = poseFactory.of(80.9863, 11.4285, 180);
+        travelThroughHive = poseFactory.of(82, 11.4285, 180);
         travelThroughHiveControl1 = poseFactory.of(69.4789, 140.1208, 0);
         travelThroughHiveControl2 = poseFactory.of(85.3224, 61.3505, 0);
-        travelThroughHiveSegment1Heading = poseFactory.of(80.9863, 11.4285, 0);
-        travelThroughHiveSegment3Start = poseFactory.of(80.9863, 11.4285, 89.7949);
-        travelThroughHiveSegment3End = poseFactory.of(80.9863, 11.4285, 180);
-        runToFlower = poseFactory.of(94.8616, 17, -90);
+        travelThroughHiveSegment1Heading = poseFactory.of(82, 11.4285, 0);
+        travelThroughHiveSegment3Start = poseFactory.of(82, 11.4285, 89.7949);
+        travelThroughHiveSegment3End = poseFactory.of(82, 11.4285, 180);
+        runToFlower = poseFactory.of(94.8616, 16, -90);
         runToFlowerControl1 = poseFactory.of(83.1872, 60.645, 0);
-        runToFlowerSegment1Start = poseFactory.of(94.8616, 17, 180);
-        runToFlowerSegment1End = poseFactory.of(94.8616, 17, 270);
-        runToFlowerSegment2Heading = poseFactory.of(94.8616, 17, 270);
+        runToFlowerSegment1Start = poseFactory.of(94.8616, 16, 180);
+        runToFlowerSegment1End = poseFactory.of(94.8616, 16, 270);
+        runToFlowerSegment2Heading = poseFactory.of(94.8616, 16, 270);
         returnFromFlower = poseFactory.of(80.5405, 11.3881, 180);
         returnFromFlowerControl1 = poseFactory.of(83.051, 61.3093, 0);
         returnFromFlowerSegment1Heading = poseFactory.of(80.5405, 11.3881, 270);
         returnFromFlowerSegment2Start = poseFactory.of(80.5405, 11.3881, 270);
         returnFromFlowerSegment2End = poseFactory.of(80.5405, 11.3881, 180);
-        park = poseFactory.of(125.2438, 21.2716, 180);
-        parkControl1 = poseFactory.of(94.1465, 38.3028, 0);
+        park = poseFactory.of(127.2438, 21.2716, 180);
+        parkControl1 = poseFactory.of(96.1465, 38.3028, 0);
     }
 
     public Path intakeCorner() {
