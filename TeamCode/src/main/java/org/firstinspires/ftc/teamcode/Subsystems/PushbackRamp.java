@@ -1,14 +1,16 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
+import static org.firstinspires.ftc.teamcode.Utilities.FlowerTest.offset;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
 public class PushbackRamp {
-    public static double downPosition = 0.63;
+    public static double downPosition = 0.61;
 
-    public static double upPosition = 0.18;
+    public static double upPosition = 0.155;
 
    // public static double floatPos = 0.4;
 
@@ -32,7 +34,7 @@ public class PushbackRamp {
 
     public void setPos(double pos) {
         left.setPosition(pos);
-        right.setPosition(pos);
+        right.setPosition(pos-offset);
     }
 
 

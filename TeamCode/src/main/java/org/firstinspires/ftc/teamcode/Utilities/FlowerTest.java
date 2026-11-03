@@ -14,6 +14,8 @@ public class FlowerTest extends OpMode {
 
     public static double flowerTestPos=0;
 
+    public static double offset = 0.035;
+
     PushbackRamp ramp;
     @Override
     public void init() {

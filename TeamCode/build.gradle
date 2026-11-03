@@ -60,6 +60,8 @@ dependencies {
     // Keep Load, Sloth, Slothboard, and Sloth Panels on the same Sloth version.
     implementation 'dev.frozenmilk.sinister:Sloth:0.3.2'
     implementation 'com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0'
+    // Browser-based AdvantageScope at http://192.168.43.1:8080/as/.
+    implementation 'page.j5155.AdvantageScope:lite:v26.0.0'
     //implementation 'com.bylazar.sloth:fullpanels:0.3.2+1.0.13'
 
     // Pedro 3
