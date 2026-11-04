@@ -11,20 +11,27 @@ public class Transfer {
     @Config
     public static class TransferConfig{
 
-        static double upPos = 0.17;
-        static double downPos = 0.42;
+        public static double upPos = 0.17;
+        public static double downPos = 0.42;
+
+        public static double nectarUpPos = 0.55;
+        public static double nectarDownPos = 0.45;
 
     }
     DcMotor motor;
     Servo blocker;
+    Servo nectarGate;
 
 
-    public Transfer(HardwareMap hardwareMap, String motorName, String servoName) {
+    public Transfer(HardwareMap hardwareMap, String motorName, String servoName, String servoName2) {
 
         motor = hardwareMap.get(DcMotor.class, motorName);
         motor.setDirection(DcMotor.Direction.REVERSE);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         blocker = hardwareMap.get(Servo.class, servoName);
+        nectarGate = hardwareMap.get(Servo.class, servoName2);
+
+
 
 
     }
@@ -32,7 +39,7 @@ public class Transfer {
     public Transfer(HardwareMap hardwareMap)
     {
 
-        this(hardwareMap, "transfer", "blocker");
+        this(hardwareMap, "transfer", "blocker", "nectarGate");
     }
 
     public void on(){
@@ -69,6 +76,20 @@ public class Transfer {
         //on();
 
     }
+
+    public void nectarBlock(){
+
+        nectarGate.setPosition(TransferConfig.nectarDownPos);
+
+    }
+
+    public void nectarRelease(){
+
+        nectarGate.setPosition(TransferConfig.nectarUpPos);
+
+    }
+
+
 
     }
 
