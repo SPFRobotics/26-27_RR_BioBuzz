@@ -167,6 +167,7 @@ public class BlueTwoTip extends LinearOpMode {
                     waitMs(500);
                 }),
                 shoot("Shoot 4 preload", 1500),
+                //step("Intake Lancer Battery", () -> intake.MAX()),
                 step("Run to flower", () -> intake.intake()),
                 parallel(
                         followToEnd(runToFlower()),

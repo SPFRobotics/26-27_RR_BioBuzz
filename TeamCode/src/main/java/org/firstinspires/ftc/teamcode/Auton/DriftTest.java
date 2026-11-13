@@ -25,7 +25,6 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 @Utility(name = "DriftTest")
 public class DriftTest extends LinearOpMode {
 
-    // Match the current FlywheelPIDTuner defaults; adjustable in the dashboard.
     public static double pollenRPM = 2560;
     public static double nectarRPM = 2650;
 
@@ -91,10 +90,7 @@ public class DriftTest extends LinearOpMode {
                 telemetry.addData("Nectar RPM", nectarWheel.getRPM());
                 telemetry.addData("Pushback ramp", "Up");
 
-                if (follower.currentPath() != null) {
-                    telemetry.addData("Current path distance remaining", follower.distanceToEndpoint());
-                    telemetry.addData("Path number", follower.pathIndex());
-                }
+
 
                 telemetry.update();
                 idle();

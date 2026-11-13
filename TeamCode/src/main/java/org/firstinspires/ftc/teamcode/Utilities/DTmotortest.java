@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 @Config
 public class DTmotortest extends OpMode {
 
-    public static String name = "frontLeftDrive";
+    public static String name = "pollenTestOuttake";
     DcMotor motor;
     @Override
     public void init() {

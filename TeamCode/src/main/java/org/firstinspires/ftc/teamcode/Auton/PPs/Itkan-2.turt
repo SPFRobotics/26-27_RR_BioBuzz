@@ -1,0 +1,506 @@
+{
+  "version": "2.6.1",
+  "header": {
+    "info": "Created with Turtle Tracer",
+    "copyright": "Copyright 2026 Matthew Allen. Licensed under the Modified Apache License, Version 2.0.",
+    "link": "https://github.com/Mallen220/TurtleTracer"
+  },
+  "startPoint": {
+    "x": 90.60676622798317,
+    "y": 133.34872716566093,
+    "locked": false,
+    "heading": "linear",
+    "startDeg": 0,
+    "endDeg": -90
+  },
+  "lines": [
+    {
+      "id": "line-mvwprrvr-bp4xkj",
+      "color": "#ffc516",
+      "name": "Path 1",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 133.2899084728396,
+        "y": 133.17707993578836,
+        "heading": "constant",
+        "degrees": 0
+      },
+      "controlPoints": [],
+      "eventMarkers": [],
+      "hidden": false
+    },
+    {
+      "id": "line-mw9so0c0-auh5lr",
+      "color": "#edc948",
+      "name": "",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 104.7984428079576,
+        "y": 31.604974186623767,
+        "heading": "piecewise",
+        "segments": [
+          {
+            "tStart": 0,
+            "tEnd": 0.09443170013850416,
+            "heading": "constant",
+            "degrees": 0
+          },
+          {
+            "tStart": 0.09443170013850416,
+            "tEnd": 0.5472158500692521,
+            "heading": "tangential",
+            "reverse": true
+          },
+          {
+            "tStart": 0.5472158500692521,
+            "tEnd": 1,
+            "heading": "linear",
+            "reverse": true,
+            "endDeg": 229
+          }
+        ]
+      },
+      "controlPoints": [],
+      "eventMarkers": [],
+      "hidden": false
+    },
+    {
+      "id": "line-mw9ss5w8-j2vwzs",
+      "color": "#9c755f",
+      "name": "",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 94.48113120725905,
+        "y": 11.378619501445389,
+        "heading": "linear",
+        "startDeg": 229,
+        "endDeg": 270
+      },
+      "controlPoints": [
+        {
+          "x": 95.61696733286014,
+          "y": 27.229717392242346
+        }
+      ],
+      "eventMarkers": [],
+      "hidden": false
+    },
+    {
+      "id": "line-mw9stj3i-op2nr9",
+      "color": "#f28e2b",
+      "name": "",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 104.41227042766697,
+        "y": 31.885114233343792,
+        "heading": "linear",
+        "startDeg": 270,
+        "endDeg": 229
+      },
+      "controlPoints": [
+        {
+          "x": 96.12853634424525,
+          "y": 27.299194092051355
+        }
+      ],
+      "eventMarkers": [],
+      "hidden": false
+    },
+    {
+      "id": "line-mw9suan6-705xmp",
+      "color": "#59a14f",
+      "name": "",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 132.27431571837195,
+        "y": 70.31632322026613,
+        "heading": "piecewise",
+        "segments": [
+          {
+            "tStart": 0,
+            "tEnd": 0.5,
+            "heading": "linear",
+            "startDeg": 229,
+            "endDeg": 270
+          },
+          {
+            "tStart": 0.5,
+            "tEnd": 1,
+            "heading": "constant",
+            "degrees": 270
+          }
+        ]
+      },
+      "controlPoints": [
+        {
+          "x": 113.685740859466,
+          "y": 83.6363772647959
+        }
+      ],
+      "eventMarkers": [],
+      "hidden": false
+    },
+    {
+      "id": "line-mw9sxjxu-0dbh6e",
+      "color": "#59a14f",
+      "name": "",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 103.45007118195676,
+        "y": 110.32936696592891,
+        "heading": "piecewise",
+        "segments": [
+          {
+            "tStart": 0,
+            "tEnd": 0.11682830459770115,
+            "heading": "constant",
+            "degrees": 270
+          },
+          {
+            "tStart": 0.11682830459770115,
+            "tEnd": 0.75,
+            "heading": "tangential",
+            "reverse": true
+          },
+          {
+            "tStart": 0.75,
+            "tEnd": 1,
+            "heading": "linear",
+            "endDeg": 326
+          }
+        ]
+      },
+      "controlPoints": [],
+      "eventMarkers": [],
+      "hidden": false
+    },
+    {
+      "id": "line-mw9t0izj-6keoua",
+      "color": "#9c755f",
+      "name": "",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 127.66844297428383,
+        "y": 94.63020322076292,
+        "heading": "piecewise",
+        "segments": [
+          {
+            "tStart": 0,
+            "tEnd": 1,
+            "heading": "linear",
+            "startDeg": 326,
+            "endDeg": 0
+          }
+        ]
+      },
+      "controlPoints": [
+        {
+          "x": 121.97460987897665,
+          "y": 94.72024176868726
+        }
+      ],
+      "eventMarkers": [],
+      "hidden": false
+    },
+    {
+      "id": "line-mw9t2a2b-x1tq23",
+      "color": "#e15759",
+      "name": "",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 102.9998644421584,
+        "y": 110.1396967482633,
+        "heading": "linear",
+        "startDeg": 0,
+        "endDeg": 326
+      },
+      "controlPoints": [],
+      "eventMarkers": [],
+      "hidden": false
+    },
+    {
+      "id": "line-mw9t2r47-4cn5k4",
+      "color": "#59a14f",
+      "name": "",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 132.88626686345924,
+        "y": 37.76094970816295,
+        "heading": "piecewise",
+        "segments": [
+          {
+            "tStart": 0,
+            "tEnd": 0.5,
+            "heading": "linear",
+            "startDeg": 0,
+            "endDeg": 270
+          },
+          {
+            "tStart": 0.5,
+            "tEnd": 1,
+            "heading": "constant",
+            "degrees": 270
+          }
+        ]
+      },
+      "controlPoints": [
+        {
+          "x": 132.28307212555936,
+          "y": 86.76976978742692
+        }
+      ],
+      "eventMarkers": [],
+      "hidden": false
+    }
+  ],
+  "sequence": [
+    {
+      "kind": "path",
+      "lineId": "line-mvwprrvr-bp4xkj"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mw9so0c0-auh5lr"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mw9ss5w8-j2vwzs"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mw9stj3i-op2nr9"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mw9suan6-705xmp"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mw9sxjxu-0dbh6e"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mw9t0izj-6keoua"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mw9t2a2b-x1tq23"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mw9t2r47-4cn5k4"
+    }
+  ],
+  "shapes": [
+    {
+      "id": "biobuzz-red-hive",
+      "name": "Red HIVE",
+      "vertices": [
+        {
+          "x": 46,
+          "y": 50
+        },
+        {
+          "x": 48.6,
+          "y": 50
+        },
+        {
+          "x": 48.6,
+          "y": 91.4
+        },
+        {
+          "x": 46,
+          "y": 91.4
+        }
+      ],
+      "color": "#dc2626",
+      "fillColor": "#ff6b6b"
+    },
+    {
+      "id": "biobuzz-blue-hive",
+      "name": "Blue HIVE",
+      "vertices": [
+        {
+          "x": 96.5,
+          "y": 91.4
+        },
+        {
+          "x": 93.9,
+          "y": 91.4
+        },
+        {
+          "x": 93.9,
+          "y": 50
+        },
+        {
+          "x": 96.5,
+          "y": 50
+        }
+      ],
+      "color": "#2563eb",
+      "fillColor": "#60a5fa"
+    },
+    {
+      "id": "biobuzz-flower-top",
+      "name": "Scoring-Side FLOWER",
+      "vertices": [
+        {
+          "x": 43.4,
+          "y": 141.5
+        },
+        {
+          "x": 50.1,
+          "y": 141.5
+        },
+        {
+          "x": 50.1,
+          "y": 139.4
+        },
+        {
+          "x": 46.75,
+          "y": 137.7
+        },
+        {
+          "x": 43.4,
+          "y": 139.4
+        }
+      ],
+      "color": "#dc2626",
+      "fillColor": "#ff6b6b",
+      "type": "obstacle"
+    },
+    {
+      "id": "biobuzz-flower-right",
+      "name": "Blue Alliance FLOWER",
+      "vertices": [
+        {
+          "x": 141.5,
+          "y": 98.1
+        },
+        {
+          "x": 139.4,
+          "y": 98.1
+        },
+        {
+          "x": 137.7,
+          "y": 94.75
+        },
+        {
+          "x": 139.4,
+          "y": 91.4
+        },
+        {
+          "x": 141.5,
+          "y": 91.4
+        }
+      ],
+      "color": "#2563eb",
+      "fillColor": "#60a5fa",
+      "type": "obstacle"
+    },
+    {
+      "id": "biobuzz-flower-bottom",
+      "name": "Audience-Side FLOWER",
+      "vertices": [
+        {
+          "x": 91.15,
+          "y": 0
+        },
+        {
+          "x": 97.8,
+          "y": 0
+        },
+        {
+          "x": 97.8,
+          "y": 2.1
+        },
+        {
+          "x": 94.5,
+          "y": 3.8
+        },
+        {
+          "x": 91.15,
+          "y": 2.1
+        }
+      ],
+      "color": "#2563eb",
+      "fillColor": "#60a5fa",
+      "type": "obstacle"
+    },
+    {
+      "id": "biobuzz-flower-left",
+      "name": "Red Alliance FLOWER",
+      "vertices": [
+        {
+          "x": 0,
+          "y": 50.35
+        },
+        {
+          "x": 2.1,
+          "y": 50.35
+        },
+        {
+          "x": 3.8,
+          "y": 47
+        },
+        {
+          "x": 2.1,
+          "y": 43.65
+        },
+        {
+          "x": 0,
+          "y": 43.65
+        }
+      ],
+      "color": "#dc2626",
+      "fillColor": "#ff6b6b",
+      "type": "obstacle"
+    }
+  ],
+  "extraData": {}
+}
