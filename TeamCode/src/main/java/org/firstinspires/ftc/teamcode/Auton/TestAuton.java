@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Subsystems.PushbackRamp;
+import org.firstinspires.ftc.teamcode.Subsystems.Transfer;
 import org.firstinspires.ftc.teamcode.Utilities.AutoCache;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 @Disabled
@@ -25,6 +26,7 @@ public class TestAuton extends OpMode {
 
     @Override
     public void init() {
+        Transfer.closeNectarGateIfPresent(hardwareMap);
         AutoCache.clear();
         autonomousStarted = false;
         follower = Constants.create(hardwareMap);

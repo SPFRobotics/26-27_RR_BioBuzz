@@ -14,6 +14,7 @@ import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.Subsystems.Transfer;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 @Autonomous(name = "ForwardPark-R", group = "Redton")
@@ -36,6 +37,7 @@ public class Parkf_R extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        Transfer.closeNectarGateIfPresent(hardwareMap);
         Scheduler.reset();
         follower = Constants.create(hardwareMap);
         follower.setPose(start);

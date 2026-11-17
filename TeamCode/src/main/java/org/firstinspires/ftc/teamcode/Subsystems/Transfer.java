@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Transfer {
+    private static final String NECTAR_GATE_NAME = "nectarGate";
 
     @Config
     public static class TransferConfig{
@@ -32,7 +33,14 @@ public class Transfer {
     }
 
     public Transfer(HardwareMap hardwareMap) {
-        this(hardwareMap, "transfer", "nectarGate", "pollenGate");
+        this(hardwareMap, "transfer", NECTAR_GATE_NAME, "pollenGate");
+    }
+
+    public static void closeNectarGateIfPresent(HardwareMap hardwareMap) {
+        Servo nectarGate = hardwareMap.tryGet(Servo.class, NECTAR_GATE_NAME);
+        if (nectarGate != null) {
+            nectarGate.setPosition(TransferConfig.nectarDownPos);
+        }
     }
 
     public void on(){

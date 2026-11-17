@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.Subsystems.Transfer;
 import org.firstinspires.ftc.teamcode.Utilities.AutoCache;
 
 import static com.pedropathing.api.Paths.line;
@@ -24,6 +25,7 @@ public class PedroAuto extends OpMode {
 
     @Override
     public void init() {
+        Transfer.closeNectarGateIfPresent(hardwareMap);
         AutoCache.clear();
         autonomousStarted = false;
         follower = Constants.create(hardwareMap);

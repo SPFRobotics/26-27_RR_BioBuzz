@@ -149,7 +149,7 @@ public class BlueTwoTip extends LinearOpMode {
                 }),
                 shoot("Shoot 4 preload", 1500),
                 step("Intake corner", () -> {
-                    transfer.closeGates();
+                    transfer.pollenBlock();
                     intake.intake();
                 }),
                 followToEnd(intakeCorner()),
@@ -157,7 +157,7 @@ public class BlueTwoTip extends LinearOpMode {
                 //followToEnd(strafe()),
                 step("Travel through hive", () -> {
                     //intake.stop();
-                    transfer.closeGates();
+                    transfer.pollenBlock();
                     startFlywheels();
                 }),
                 followToEnd(travelThroughHive()),
@@ -201,6 +201,7 @@ public class BlueTwoTip extends LinearOpMode {
         try {
             intake = new Intake(hardwareMap);
             transfer = new Transfer(hardwareMap);
+            transfer.nectarBlock();
             pushbackRamp = new PushbackRamp(hardwareMap);
             pollenWheel = new FlywheelPollen(hardwareMap);
             nectarWheel = new FlywheelNectar(hardwareMap);
@@ -334,7 +335,7 @@ public class BlueTwoTip extends LinearOpMode {
                 waitMs(flywheelSpinupTimeoutMs)
                         .until(() -> pollenWheel.isAtSpeed()),
                 step(name + " - feed", () -> {
-                    transfer.openGates();
+                    transfer.pollenRelease();
                     transfer.on();
                     intake.intake();
                 }),
@@ -354,7 +355,7 @@ public class BlueTwoTip extends LinearOpMode {
         }
         if (transfer != null) {
             transfer.off();
-            transfer.closeGates();
+            transfer.pollenBlock();
         }
         if (pollenWheel != null) {
             //pollenWheel.stop();
