@@ -15,7 +15,8 @@ public class Lift {
     // Observed on this lift: positive servo power (up) decreases encoder position.
     private static final int ENCODER_DIRECTION_FOR_UP = -1;
     private static final double BOTTOM_VOLTAGE = 0.806;
-    private static final double FINAL_ZEROED_VOLTAGE = 0.1;
+    // Keep the established upper stop, but return to the actual bottom reference.
+    private static final double UPPER_ZEROED_VOLTAGE = 0.1;
     private static final double UP_EXTRA_DEGREES = 90.0;
     private static final double ENCODER_MAX_VOLTAGE = 3.3;
     // Allow 50 mV of endpoint measurement error, then clamp to the nominal range.
@@ -76,21 +77,18 @@ public class Lift {
         if (!sampleEncoder()) return;
         traveledRotations = 0;
         startingRotation = wrapCount + previousRotation;
-        // Select the nearest endpoint turn, not the integer wrap bucket: tiny
-        // changes across zero must not shift the next destination by a whole turn.
-        int startingEndpoint = (int) Math.round(startingRotation
-                - FINAL_ZEROED_VOLTAGE / ENCODER_MAX_VOLTAGE);
-        targetPosition = startingEndpoint + requestedDirection * ENCODER_DIRECTION_FOR_UP * MOVE_WRAPS
-                + FINAL_ZEROED_VOLTAGE / ENCODER_MAX_VOLTAGE;
-        // Raise only the upper endpoint; down still targets the original lower endpoint.
-        if (requestedDirection > 0) {
-            targetPosition += ENCODER_DIRECTION_FOR_UP * UP_EXTRA_DEGREES / 360.0;
-        }
+        // Initialization assumes the lift is at the bottom (position zero).
+        // Use fixed endpoints so reversing or retrying never adds another two turns.
+        targetPosition = requestedDirection > 0
+                ? ENCODER_DIRECTION_FOR_UP * (MOVE_WRAPS + UP_EXTRA_DEGREES / 360.0)
+                        + UPPER_ZEROED_VOLTAGE / ENCODER_MAX_VOLTAGE
+                : 0.0;
         targetWrapCount = (int) Math.floor(targetPosition);
         moveStarted = clock.getAsLong();
         direction = requestedDirection;
         status = Status.MOVING;
-        applyPower(direction * MAX_POWER);
+        // Check the endpoint before applying power, including commands at the bottom.
+        update();
     }
 
 

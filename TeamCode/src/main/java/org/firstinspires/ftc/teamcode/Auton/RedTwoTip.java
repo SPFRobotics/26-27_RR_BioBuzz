@@ -147,7 +147,7 @@ public class RedTwoTip extends LinearOpMode {
                 }),
                 shoot("Shoot 4 preload", 1500),
                 step("Intake corner", () -> {
-                    transfer.block();
+                    transfer.closeGates();
                     intake.intake();
                 }),
                 followToEnd(intakeCorner()),
@@ -155,7 +155,7 @@ public class RedTwoTip extends LinearOpMode {
                 //followToEnd(strafe()),
                 step("Travel through hive", () -> {
                     //intake.stop();
-                    transfer.block();
+                    transfer.closeGates();
                     startFlywheels();
                 }),
                 followToEnd(travelThroughHive()),
@@ -331,7 +331,7 @@ public class RedTwoTip extends LinearOpMode {
                 waitMs(flywheelSpinupTimeoutMs)
                         .until(() -> pollenWheel.isAtSpeed()),
                 step(name + " - feed", () -> {
-                    transfer.release();
+                    transfer.openGates();
                     transfer.on();
                     intake.intake();
                 }),
@@ -351,7 +351,7 @@ public class RedTwoTip extends LinearOpMode {
         }
         if (transfer != null) {
             transfer.off();
-            transfer.block();
+            transfer.closeGates();
         }
         if (pollenWheel != null) {
             //pollenWheel.stop();

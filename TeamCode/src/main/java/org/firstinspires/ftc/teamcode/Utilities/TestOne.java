@@ -19,8 +19,6 @@ public class TestOne extends OpMode {
     FlywheelNectar outtakeN;
     FlywheelPollen outtakeP;
 
-    public static boolean block;
-
     public static boolean activateTransfer = true;
     @Override
     public void init() {
@@ -35,12 +33,10 @@ public class TestOne extends OpMode {
     @Override
     public void loop() {
 
-        block = true;
-
         intake.intake();
         if(activateTransfer){transfer.on();}
 
-        if(block){transfer.block();}
+        transfer.closeGates();
 
         outtakeN.runAtRPM(2600);
         outtakeP.runAtRPM(2600);

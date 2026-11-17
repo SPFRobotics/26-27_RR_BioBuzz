@@ -37,22 +37,20 @@ public class Tele extends OpMode {
     private FlywheelNectar nectarWheel;
     private boolean intakeEnabled;
     private boolean intakeReversed;
-    private boolean intakeReverseHeld;
     private boolean flywheelEnabled;
     private boolean transferEnabled;
-    private boolean blockerClosed = true;
     private boolean nectarGateClosed = true;
+    private boolean pollenGateClosed = true;
     private boolean pushbackRampDown;
-    private boolean liftRaised;
     private boolean liftTargetRaised;
     private boolean previousLiftButton;
     private boolean previousIntakeButton;
     private boolean previousReversePulseButton;
     private double reversePulseEndTime;
-    private boolean previousFlywheelButton;
+    private boolean previousFlywheelStopButton;
     private boolean previousTransferButton;
-    private boolean previousBlockerButton;
     private boolean previousNectarGateButton;
+    private boolean previousPollenGateButton;
     private boolean previousPushbackRampButton;
     private boolean previousHeadingResetButton;
     private AutoCache.Alliance driveAlliance = AutoCache.Alliance.UNKNOWN;
@@ -93,27 +91,26 @@ public class Tele extends OpMode {
     public void start() {
         intakeEnabled = false;
         intakeReversed = false;
-        intakeReverseHeld = false;
-        flywheelEnabled = false;
         transferEnabled = false;
-        blockerClosed = true;
         nectarGateClosed = true;
+        pollenGateClosed = true;
         pushbackRampDown = false;
-        liftRaised = false;
         liftTargetRaised = false;
         previousLiftButton = gamepad2.cross;
         previousIntakeButton = false;
         previousReversePulseButton = false;
         reversePulseEndTime = 0.0;
-        previousFlywheelButton = false;
+        previousFlywheelStopButton = gamepad2.dpad_up;
         previousTransferButton = false;
-        previousBlockerButton = false;
-        previousNectarGateButton = false;
+        previousNectarGateButton = gamepad2.left_bumper;
+        previousPollenGateButton = gamepad2.right_bumper;
         previousPushbackRampButton = false;
         previousHeadingResetButton = false;
         // Blue's existing field directions are correct; red drivers face the opposite way.
         fieldCentricHeadingOffset = driveAlliance == AutoCache.Alliance.RED ? Math.PI : 0.0;
         stopAll();
+        flywheelEnabled = true;
+        updateFlywheels(getDistanceToTarget());
         updateLeds();
     }
 
@@ -145,11 +142,10 @@ public class Tele extends OpMode {
 
         boolean intakeButton = gamepad1.square;
         boolean reversePulseButton = gamepad1.circle;
-        intakeReverseHeld = gamepad1.right_bumper;
-        boolean flywheelButton = gamepad2.left_bumper;
+        boolean flywheelStopButton = gamepad2.dpad_up;
         boolean transferButton = gamepad2.y;
-        boolean blockerButton = gamepad2.b;
-        boolean nectarGateButton = gamepad2.square;
+        boolean nectarGateButton = gamepad2.left_bumper;
+        boolean pollenGateButton = gamepad2.right_bumper;
         boolean liftButton = gamepad2.cross;
         boolean pushbackRampButton = gamepad1.a;
         intake.setReverseSpeed(-1);
@@ -158,7 +154,7 @@ public class Tele extends OpMode {
             reversePulseEndTime = now + REVERSE_PULSE_SECONDS;
             intake.setReverseSpeed(-0.5);
         }
-        boolean reverseRequested = intakeReverseHeld || now < reversePulseEndTime;
+        boolean reverseRequested = gamepad1.right_bumper || now < reversePulseEndTime;
 
         // Preserve the normal settings throughout reverse, including its release loop.
         if (!reverseRequested && !intakeReversed) {
@@ -168,22 +164,23 @@ public class Tele extends OpMode {
             if (transferButton && !previousTransferButton) {
                 transferEnabled = !transferEnabled;
             }
-            if (blockerButton && !previousBlockerButton) {
-                blockerClosed = !blockerClosed;
-            }
         }
         intakeReversed = reverseRequested;
         if (nectarGateButton && !previousNectarGateButton) {
             nectarGateClosed = !nectarGateClosed;
         }
-        if (flywheelButton && !previousFlywheelButton) {
-            flywheelEnabled = !flywheelEnabled;
+        if (pollenGateButton && !previousPollenGateButton) {
+            pollenGateClosed = !pollenGateClosed;
+        }
+        if (flywheelStopButton && !previousFlywheelStopButton) {
+            flywheelEnabled = false;
         }
         if (pushbackRampButton && !previousPushbackRampButton) {
             pushbackRampDown = !pushbackRampDown;
         }
-        if (liftButton && !previousLiftButton && !lift.isBusy()) {
-            liftTargetRaised = !liftRaised;
+        if (liftButton && !previousLiftButton) {
+            // Toggle the requested endpoint, even if the last move stalled or timed out.
+            liftTargetRaised = !liftTargetRaised;
             if (liftTargetRaised) {
                 lift.up();
             } else {
@@ -193,10 +190,10 @@ public class Tele extends OpMode {
 
         previousIntakeButton = intakeButton;
         previousReversePulseButton = reversePulseButton;
-        previousFlywheelButton = flywheelButton;
+        previousFlywheelStopButton = flywheelStopButton;
         previousTransferButton = transferButton;
-        previousBlockerButton = blockerButton;
         previousNectarGateButton = nectarGateButton;
+        previousPollenGateButton = pollenGateButton;
         previousPushbackRampButton = pushbackRampButton;
         previousLiftButton = liftButton;
 
@@ -207,18 +204,15 @@ public class Tele extends OpMode {
         } else {
             transfer.off();
         }
-        // Only held reverse lowers the blocker; a burst preserves its normal setting.
-        if (intakeReverseHeld) {
-            transfer.release();
-        } else if (blockerClosed) {
-            transfer.block();
-        } else {
-            transfer.release();
-        }
         if (nectarGateClosed) {
             transfer.nectarBlock();
         } else {
             transfer.nectarRelease();
+        }
+        if (pollenGateClosed) {
+            transfer.pollenBlock();
+        } else {
+            transfer.pollenRelease();
         }
         if (pushbackRampDown) {
             pushbackRamp.down();
@@ -235,19 +229,8 @@ public class Tele extends OpMode {
         }
 
         double distance = getDistanceToTarget();
-        if (flywheelEnabled && Double.isFinite(distance) && distance >= 0.0) {
-            pollenWheel.runAtRPM(2700);
-            nectarWheel.runAtRPM(3525);
-        } else {
-            pollenWheel.stop();
-            nectarWheel.stop();
-        }
-        pollenWheel.update();
-        nectarWheel.update();
+        updateFlywheels(distance);
         lift.update();
-        if (lift.getStatus() == Lift.Status.COMPLETE) {
-            liftRaised = liftTargetRaised;
-        }
         updateLeds();
 
         addControlTelemetry();
@@ -259,12 +242,21 @@ public class Tele extends OpMode {
         telemetry.update();
     }
 
+    private void updateFlywheels(double distance) {
+        if (flywheelEnabled && Double.isFinite(distance) && distance >= 0.0) {
+            pollenWheel.runAtRPM(2700);
+            nectarWheel.runAtRPM(3525);
+        } else {
+            pollenWheel.stop();
+            nectarWheel.stop();
+        }
+        pollenWheel.update();
+        nectarWheel.update();
+    }
+
     private void updateLeds() {
-        boolean blockerOpen = intakeReverseHeld || !blockerClosed;
-        boolean flywheelsAtSpeed = flywheelEnabled
-                && pollenWheel.isAtSpeed() && nectarWheel.isAtSpeed();
-        leds.setColors(blockerOpen ? LedLights.GREEN : LedLights.RED,
-                flywheelsAtSpeed ? LedLights.ORANGE : LedLights.BLUE);
+        leds.setColors(nectarGateClosed ? LedLights.RED : LedLights.BLUE,
+                pollenGateClosed ? LedLights.RED : LedLights.YELLOW);
     }
 
     private void addControlTelemetry() {
@@ -280,12 +272,14 @@ public class Tele extends OpMode {
         telemetry.addData("Pushback ramp", pushbackRampDown ? "Down" : "Up");
 
        // telemetry.addLine("Gamepad 2 - Scoring (buttons toggle)");
-        telemetry.addData("Flywheels: ", flywheelEnabled ? "On" : "Off");
+        telemetry.addData("GP2 D-pad Up - Stop flywheels", flywheelEnabled ? "On" : "Off");
         //telemetry.addData("GP2 Y / Triangle - Transfer", intakeReversed ? "Reverse" : (transferEnabled ? "On" : "Off"));
-        telemetry.addData("Blocker: ", intakeReverseHeld ? "Down (reverse)" : (blockerClosed ? "Closed" : "Open"));
-        telemetry.addData("GP2 X / Square - Nectar gate", nectarGateClosed ? "Closed" : "Open");
+        telemetry.addData("GP2 LB / L1 - Nectar gate", nectarGateClosed ? "Closed" : "Open");
+        telemetry.addData("GP2 RB / R1 - Pollen gate", pollenGateClosed ? "Closed" : "Open");
         telemetry.addData("GP2 Cross (X) / A - Lift target", liftTargetRaised ? "Up" : "Down");
         telemetry.addData("Lift status", lift.getStatus());
+        telemetry.addData("Lift encoder (V)", lift.getLastEncoderVoltage());
+        telemetry.addData("Lift power", lift.getCommandedPower());
         telemetry.addData("Pos: ", follower.pose());
         telemetry.addLine("GP1 Options: reset drive reference with robot facing your driver station");
         telemetry.addData("GP1 D-pad Up - Hold to aim", gamepad1.dpad_up ? "Held" : "Manual turn");
@@ -299,12 +293,11 @@ public class Tele extends OpMode {
         }
         intakeEnabled = false;
         intakeReversed = false;
-        intakeReverseHeld = false;
         reversePulseEndTime = 0.0;
         flywheelEnabled = false;
         transferEnabled = false;
-        blockerClosed = true;
         nectarGateClosed = true;
+        pollenGateClosed = true;
         pushbackRampDown = false;
         stopAll();
 
@@ -334,8 +327,7 @@ public class Tele extends OpMode {
         }
         if (transfer != null) {
             transfer.off();
-            transfer.block();
-            transfer.nectarBlock();
+            transfer.closeGates();
         }
         if (intake != null) {
             intake.stop();

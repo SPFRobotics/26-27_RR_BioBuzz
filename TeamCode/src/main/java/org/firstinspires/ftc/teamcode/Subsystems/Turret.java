@@ -45,8 +45,8 @@ public final class Turret {
         }
     }
 
-    public static Params NECTAR = new Params("Nectar", -4.5, 4.5);
-    public static Params POLLEN = new Params("Pollen", -4.5, -4.5);
+    public static Params NECTAR = new Params("Nectar", -4.51, 4.19);
+    public static Params POLLEN = new Params("Pollen", -4.51, -4.25);
 
     // Pedro field inches; hives pivot at y = 72.
     public static double hiveOffsetInches = 12.75;

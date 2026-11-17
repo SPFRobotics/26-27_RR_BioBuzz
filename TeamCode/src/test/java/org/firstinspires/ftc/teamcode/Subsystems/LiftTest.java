@@ -27,10 +27,6 @@ public class LiftTest {
             raw((value + 0.806) % 3.3);
         }
 
-        void forwardTurn() {
-            for (double v : new double[]{0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 0.0}) zeroed(v);
-        }
-
         // Model the reported robot: positive power makes encoder voltage decrease.
         void followPower() {
             double next = (voltage - power * 0.02 * 3.3) % 3.3;
@@ -103,54 +99,14 @@ public class LiftTest {
             for (int i = 0; i < 450 && f.lift.isBusy(); i++) f.followPower();
             assertEquals(Lift.Status.COMPLETE, f.lift.getStatus());
             assertEquals(0.081, f.voltage, 0.015);
-            assertEquals(2.25, f.lift.getTraveledRotations(), 0.015);
+            assertEquals(cycle == 0 ? 2.25 : 2.25 - 0.1 / 3.3,
+                    f.lift.getTraveledRotations(), 0.015);
             f.lift.down();
             for (int i = 0; i < 450 && f.lift.isBusy(); i++) f.followPower();
             assertEquals(Lift.Status.COMPLETE, f.lift.getStatus());
-            assertEquals(0.906, f.voltage, 0.015);
+            assertEquals(0.806, f.voltage, 0.015);
             assertEquals(0, f.lift.getWrapCount());
         }
-    }
-
-    @Test public void movementWhileStoppedIsTrackedWithoutRestartingTheServo() {
-        Fixture f = new Fixture();
-        f.zeroed(3.2);
-        assertEquals(-1, f.lift.getWrapCount());
-        assertEquals(0, f.power, 0);
-        f.lift.down();
-        assertEquals(-1, f.lift.getWrapCount());
-        assertEquals(2, f.lift.getTargetWrapCount());
-    }
-
-    @Test public void downCountsTwoPositiveWrapsThenContinuesToPointOne() {
-        Fixture f = new Fixture();
-        f.lift.down();
-        f.forwardTurn();
-        assertEquals(1, f.lift.getWrapCount());
-        assertTrue(f.lift.isBusy());
-        f.forwardTurn();
-        assertEquals(2, f.lift.getWrapCount());
-        assertEquals(2, f.lift.getTraveledRotations(), 1e-9);
-        assertTrue(f.lift.isBusy());
-        f.zeroed(0.05);
-        assertTrue(f.lift.isBusy());
-        f.zeroed(0.1);
-        assertEquals(Lift.Status.COMPLETE, f.lift.getStatus());
-        assertEquals(2 + 0.1 / 3.3, f.lift.getTraveledRotations(), 1e-9);
-        assertEquals(0, f.power, 0);
-    }
-
-    @Test public void rawVoltageRolloverIsNotTheZeroedWrap() {
-        Fixture f = new Fixture();
-        f.lift.down();
-        for (double v : new double[]{1.2, 2.0, 3.0, 3.31, -0.01, 0.5}) {
-            f.raw(v);
-            assertTrue(f.lift.isBusy());
-            assertEquals(0, f.lift.getWrapCount());
-        }
-        f.raw(0.806);
-        assertEquals(1, f.lift.getWrapCount());
-        assertTrue(f.lift.isBusy());
     }
 
     @Test public void upContinuesNinetyDegreesPastThePreviousUpperStop() {
@@ -180,7 +136,7 @@ public class LiftTest {
 
     @Test public void jitterAcrossZeroDoesNotAccumulateWraps() {
         Fixture f = new Fixture();
-        f.lift.down();
+        f.lift.up();
         for (int i = 0; i < 100; i++) {
             f.zeroed(3.29);
             f.zeroed(0.01);
@@ -189,33 +145,10 @@ public class LiftTest {
         assertTrue(f.lift.isBusy());
     }
 
-    @Test public void aNewCommandPreservesTheWrapCount() {
-        Fixture f = new Fixture();
-        f.lift.down();
-        f.forwardTurn();
-        assertEquals(1, f.lift.getWrapCount());
-        f.lift.up();
-        assertEquals(1, f.lift.getWrapCount());
-        assertEquals(-2, f.lift.getTargetWrapCount());
-        assertEquals(0, f.lift.getTraveledRotations(), 0);
-        assertEquals(1, f.power, 0);
-    }
-
-    @Test public void stopsWhenSamplePassesFinalTarget() {
-        Fixture f = new Fixture();
-        f.lift.down();
-        f.forwardTurn();
-        f.forwardTurn();
-        f.zeroed(0.15);
-        assertEquals(Lift.Status.COMPLETE, f.lift.getStatus());
-        f.zeroed(0.2);
-        assertEquals(0, f.power, 0);
-    }
-
     @Test public void stopCancelsMotionAndUpdateDoesNotRestartIt() {
         Fixture f = new Fixture();
-        f.lift.down();
-        f.zeroed(0.5);
+        f.lift.up();
+        f.zeroed(3.0);
         f.lift.stop();
         f.zeroed(1.0);
         assertEquals(Lift.Status.CANCELLED, f.lift.getStatus());
@@ -225,7 +158,7 @@ public class LiftTest {
 
     @Test public void stalledEncoderTimesOut() {
         Fixture f = new Fixture();
-        f.lift.down();
+        f.lift.up();
         f.nanos = 10_000_000_000L;
         f.lift.update();
         assertEquals(Lift.Status.TIMED_OUT, f.lift.getStatus());
@@ -235,7 +168,7 @@ public class LiftTest {
     @Test public void invalidFeedbackStopsMotionAndPreventsStarting() {
         for (double voltage : new double[]{Double.NaN, Double.POSITIVE_INFINITY, -0.1, 3.4}) {
             Fixture f = new Fixture();
-            f.lift.down();
+            f.lift.up();
             f.raw(voltage);
             assertTrue(f.lift.isBusy());
             f.nanos += 50_000_000;
@@ -275,5 +208,64 @@ public class LiftTest {
         }
         assertFalse(f.lift.isBusy());
         assertEquals(0, f.power, 0);
+    }
+
+    @Test public void downStopsAtOriginalBottomWithoutRequiringPointNineZeroSix() {
+        Fixture f = new Fixture();
+        f.lift.up();
+        for (int i = 0; i < 450 && f.lift.isBusy(); i++) f.followPower();
+        assertEquals(Lift.Status.COMPLETE, f.lift.getStatus());
+        f.lift.down();
+        // Approach the bottom from above, then stop exactly at the physical reference.
+        for (int i = 0; i < 450 && f.power < 0; i++) {
+            double next = (f.voltage - f.power * 0.02 * 3.3) % 3.3;
+            if (f.lift.getWrapCount() == -1 && f.voltage < 0.806 && next >= 0.806) {
+                f.raw(0.806);
+                break;
+            }
+            f.followPower();
+        }
+        assertEquals(0.806, f.voltage, 1e-9);
+        assertEquals(Lift.Status.COMPLETE, f.lift.getStatus());
+        assertEquals(0, f.power, 0);
+        f.lift.up();
+        assertTrue(f.power > 0);
+    }
+
+    @Test public void downAtBottomDoesNotRunAnotherTwoTurns() {
+        Fixture f = new Fixture();
+        f.lift.down();
+        assertEquals(Lift.Status.COMPLETE, f.lift.getStatus());
+        assertEquals(0, f.power, 0);
+    }
+
+    @Test public void reversingMidMoveReturnsToTheFixedBottom() {
+        Fixture f = new Fixture();
+        f.lift.up();
+        for (int i = 0; i < 40; i++) f.followPower();
+        f.lift.down();
+        assertEquals(0, f.lift.getTargetWrapCount());
+        assertTrue(f.power < 0);
+        for (int i = 0; i < 450 && f.lift.isBusy(); i++) f.followPower();
+        assertEquals(Lift.Status.COMPLETE, f.lift.getStatus());
+        assertEquals(0.806, f.voltage, 0.015);
+    }
+
+    @Test public void retryAfterDownTimeoutKeepsTheSameBottomTarget() {
+        Fixture f = new Fixture();
+        f.lift.up();
+        for (int i = 0; i < 450 && f.lift.isBusy(); i++) f.followPower();
+        f.lift.down();
+        for (int i = 0; i < 40; i++) f.followPower();
+        f.nanos += 10_000_000_000L;
+        f.lift.update();
+        assertEquals(Lift.Status.TIMED_OUT, f.lift.getStatus());
+        f.lift.down();
+        assertEquals(0, f.lift.getTargetWrapCount());
+        for (int i = 0; i < 450 && f.lift.isBusy(); i++) f.followPower();
+        assertEquals(Lift.Status.COMPLETE, f.lift.getStatus());
+        assertEquals(0.806, f.voltage, 0.015);
+        f.lift.up();
+        assertTrue(f.power > 0);
     }
 }

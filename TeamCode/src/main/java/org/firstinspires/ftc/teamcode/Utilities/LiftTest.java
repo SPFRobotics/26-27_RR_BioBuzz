@@ -47,7 +47,7 @@ public class LiftTest extends OpMode {
             lastCommand = "Up: upper stop extended 90 degrees";
         } else if (down && !previousDown) {
             lift.down();
-            lastCommand = "Down: original lower stop";
+            lastCommand = "Down: bottom reference";
         }
 
         previousUp = up;
@@ -58,8 +58,8 @@ public class LiftTest extends OpMode {
 
     private void showTelemetry() {
         telemetry.addLine("D-pad up/down: move lift | B: cancel");
-        telemetry.addLine("Upper stop: +90 degrees | Lower stop unchanged");
-        telemetry.addLine("Raw targets: up 0.081 V, down 0.906 V");
+        telemetry.addLine("Upper stop: +90 degrees | Lower stop: bottom reference");
+        telemetry.addLine("Raw targets: up 0.081 V, down 0.806 V");
         telemetry.addLine("Hardware: lift (CR servo), liftEncoder (analog input)");
         telemetry.addData("Last command", lastCommand);
         telemetry.addData("Moving", lift.isBusy());

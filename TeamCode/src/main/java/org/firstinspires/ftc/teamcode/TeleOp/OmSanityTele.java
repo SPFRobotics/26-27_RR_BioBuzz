@@ -30,13 +30,13 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
     private boolean intakeReversed;
     private boolean flywheelEnabled;
     private boolean transferEnabled;
-    private boolean blockerClosed = true;
+    private boolean gatesClosed = true;
     private boolean pushbackRampDown;
     private boolean previousIntakeButton;
     private boolean previousReverseIntakeButton;
     private boolean previousFlywheelButton;
     private boolean previousTransferButton;
-    private boolean previousBlockerButton;
+    private boolean previousGatesButton;
     private boolean previousPushbackRampButton;
 
     @Override
@@ -66,13 +66,13 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
         intakeReversed = false;
         flywheelEnabled = false;
         transferEnabled = false;
-        blockerClosed = true;
+        gatesClosed = true;
         pushbackRampDown = false;
         previousIntakeButton = false;
         previousReverseIntakeButton = false;
         previousFlywheelButton = false;
         previousTransferButton = false;
-        previousBlockerButton = false;
+        previousGatesButton = false;
         previousPushbackRampButton = false;
         stopAll();
     }
@@ -90,7 +90,7 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
         boolean reverseIntakeButton = gamepad1.right_bumper;
         boolean flywheelButton = gamepad1.left_bumper;
         boolean transferButton = gamepad1.y;
-        boolean blockerButton = gamepad1.b;
+        boolean gatesButton = gamepad1.b;
         boolean pushbackRampButton = gamepad1.a;
 
         // Preserve the normal settings throughout reverse, including its release loop.
@@ -101,8 +101,8 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
             if (transferButton && !previousTransferButton) {
                 transferEnabled = !transferEnabled;
             }
-            if (blockerButton && !previousBlockerButton) {
-                blockerClosed = !blockerClosed;
+            if (gatesButton && !previousGatesButton) {
+                gatesClosed = !gatesClosed;
             }
         }
         intakeReversed = reverseIntakeButton;
@@ -117,7 +117,7 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
         previousReverseIntakeButton = reverseIntakeButton;
         previousFlywheelButton = flywheelButton;
         previousTransferButton = transferButton;
-        previousBlockerButton = blockerButton;
+        previousGatesButton = gatesButton;
         previousPushbackRampButton = pushbackRampButton;
 
         if (intakeReversed) {
@@ -127,12 +127,10 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
         } else {
             transfer.off();
         }
-        if (intakeReversed) {
-            transfer.release();
-        } else if (blockerClosed) {
-            transfer.block();
+        if (!intakeReversed && gatesClosed) {
+            transfer.closeGates();
         } else {
-            transfer.release();
+            transfer.openGates();
         }
         if (pushbackRampDown) {
             pushbackRamp.down();
@@ -176,7 +174,7 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
         telemetry.addData("RB / R1 - Hold to reverse intake + transfer", intakeReversed ? "Held" : "Released");
         telemetry.addData("LB / L1 - Flywheels", flywheelEnabled ? "On" : "Off");
         telemetry.addData("Y / Triangle - Transfer", intakeReversed ? "Reverse" : (transferEnabled ? "On" : "Off"));
-        telemetry.addData("B / Circle - Blocker", intakeReversed ? "Down (reverse)" : (blockerClosed ? "Closed" : "Open"));
+        telemetry.addData("B / Circle - Gates", intakeReversed || !gatesClosed ? "Open" : "Closed");
         telemetry.addData("A / Cross - Pushback ramp", pushbackRampDown ? "Down" : "Up");
     }
 
@@ -186,7 +184,7 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
         intakeReversed = false;
         flywheelEnabled = false;
         transferEnabled = false;
-        blockerClosed = true;
+        gatesClosed = true;
         pushbackRampDown = false;
         stopAll();
 
@@ -207,7 +205,7 @@ private static final Pose TARGET_POSE = new Pose(0, 0);
         }
         if (transfer != null) {
             transfer.off();
-            transfer.block();
+            transfer.closeGates();
         }
         if (intake != null) {
             intake.stop();
