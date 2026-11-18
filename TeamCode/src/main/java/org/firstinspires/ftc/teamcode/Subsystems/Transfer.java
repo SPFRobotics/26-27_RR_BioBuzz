@@ -11,8 +11,8 @@ public class Transfer {
     @Config
     public static class TransferConfig{
 
-        public static double nectarUpPos = 0.55;
-        public static double nectarDownPos = 0.45;
+        public static double nectarUpPos = 0.33;
+        public static double nectarDownPos = 0.5;
 
         public static double pollenUp = 0.15;
         public static double pollenDown = 0.07;
