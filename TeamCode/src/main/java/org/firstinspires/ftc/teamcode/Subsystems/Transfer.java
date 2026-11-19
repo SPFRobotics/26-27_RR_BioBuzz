@@ -11,8 +11,8 @@ public class Transfer {
     @Config
     public static class TransferConfig{
 
-        public static double nectarUpPos = 0.33;
-        public static double nectarDownPos = 0.5;
+        public static double nectarUpPos = 0.18;
+        public static double nectarDownPos = 0.08;
 
         public static double pollenUp = 0.15;
         public static double pollenDown = 0.07;
@@ -79,16 +79,13 @@ public class Transfer {
 
     }
 
-    public void pollenBlock(){
-
-        pollenGate.setPosition(TransferConfig.pollenUp);
-
+    public void pollenBlock() {
+        pollenGate.setPosition(TransferConfig.pollenDown);
     }
 
-        public void pollenRelease(){
-        pollenGate.setPosition(TransferConfig.pollenDown);
-
-        }
+    public void pollenRelease() {
+        pollenGate.setPosition(TransferConfig.pollenUp);
+    }
 
     public void pollenControl(double pos) {
         pollenGate.setPosition(pos);

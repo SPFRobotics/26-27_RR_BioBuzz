@@ -22,7 +22,7 @@ public class Tele extends OpMode {
     private static final Pose TARGET_POSE = new Pose(0, 0);
     private static final double PRECISION_DRIVE_SCALE = 0.35;
     private static final double PRECISION_TRIGGER_THRESHOLD = 0.1;
-    private static final double REVERSE_PULSE_SECONDS = 0.05;
+    private static final double REVERSE_PULSE_SECONDS = 0.1;
     boolean fieldCentric = true;
 
     private Follower follower;
