@@ -12,7 +12,7 @@ public class Transfer {
     public static class TransferConfig{
 
         public static double nectarUpPos = 0.18;
-        public static double nectarDownPos = 0.08;
+        public static double nectarDownPos = 0.05;
 
         public static double pollenUp = 0.15;
         public static double pollenDown = 0.07;
