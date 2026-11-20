@@ -47,7 +47,7 @@ public class Tele extends OpMode {
     private boolean previousIntakeButton;
     private boolean previousReversePulseButton;
     private double reversePulseEndTime;
-    private boolean previousFlywheelStopButton;
+    private boolean previousFlywheelButton;
     private boolean previousTransferButton;
     private boolean previousNectarGateButton;
     private boolean previousPollenGateButton;
@@ -100,7 +100,7 @@ public class Tele extends OpMode {
         previousIntakeButton = false;
         previousReversePulseButton = false;
         reversePulseEndTime = 0.0;
-        previousFlywheelStopButton = gamepad2.dpad_up;
+        previousFlywheelButton = gamepad2.dpad_up;
         previousTransferButton = false;
         previousNectarGateButton = gamepad2.left_bumper;
         previousPollenGateButton = gamepad2.right_bumper;
@@ -142,7 +142,7 @@ public class Tele extends OpMode {
 
         boolean intakeButton = gamepad1.square;
         boolean reversePulseButton = gamepad1.circle;
-        boolean flywheelStopButton = gamepad2.dpad_up;
+        boolean flywheelButton = gamepad2.dpad_up;
         boolean transferButton = gamepad2.y;
         boolean nectarGateButton = gamepad2.left_bumper;
         boolean pollenGateButton = gamepad2.right_bumper;
@@ -172,8 +172,8 @@ public class Tele extends OpMode {
         if (pollenGateButton && !previousPollenGateButton) {
             pollenGateClosed = !pollenGateClosed;
         }
-        if (flywheelStopButton && !previousFlywheelStopButton) {
-            flywheelEnabled = false;
+        if (flywheelButton && !previousFlywheelButton) {
+            flywheelEnabled = !flywheelEnabled;
         }
         if (pushbackRampButton && !previousPushbackRampButton) {
             pushbackRampDown = !pushbackRampDown;
@@ -190,7 +190,7 @@ public class Tele extends OpMode {
 
         previousIntakeButton = intakeButton;
         previousReversePulseButton = reversePulseButton;
-        previousFlywheelStopButton = flywheelStopButton;
+        previousFlywheelButton = flywheelButton;
         previousTransferButton = transferButton;
         previousNectarGateButton = nectarGateButton;
         previousPollenGateButton = pollenGateButton;
@@ -272,7 +272,7 @@ public class Tele extends OpMode {
         telemetry.addData("Pushback ramp", pushbackRampDown ? "Down" : "Up");
 
        // telemetry.addLine("Gamepad 2 - Scoring (buttons toggle)");
-        telemetry.addData("GP2 D-pad Up - Stop flywheels", flywheelEnabled ? "On" : "Off");
+        telemetry.addData("GP2 D-pad Up - Toggle flywheels", flywheelEnabled ? "On" : "Off");
         //telemetry.addData("GP2 Y / Triangle - Transfer", intakeReversed ? "Reverse" : (transferEnabled ? "On" : "Off"));
         telemetry.addData("GP2 LB / L1 - Nectar gate", nectarGateClosed ? "Closed" : "Open");
         telemetry.addData("GP2 RB / R1 - Pollen gate", pollenGateClosed ? "Closed" : "Open");

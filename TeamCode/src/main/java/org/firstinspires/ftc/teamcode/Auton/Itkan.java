@@ -77,7 +77,6 @@ public class Itkan extends LinearOpMode {
     private final Pose shootFlower2 = poseFactory.of(102.9999, 110.1397, 326);
     private final Pose park = poseFactory.of(132.8863, 37.7609, -90);
     private final Pose parkControl1 = poseFactory.of(132.2831, 86.7698, 0);
-    private final Pose parkSegment1Start = poseFactory.of(132.8863, 37.7609, 0);
     private final Pose parkSegment1End = poseFactory.of(132.8863, 37.7609, 270);
     private final Pose parkSegment2Heading = poseFactory.of(132.8863, 37.7609, 270);
 
@@ -220,7 +219,7 @@ public class Itkan extends LinearOpMode {
     }
 
     public Path shootCorner() {
-        return Paths.line(intakeCorner, shootCorner).heading(Interpolator.piecewise().until(0.0944, Interpolator.constant(shootCornerSegment1Heading)).until(0.5472, Interpolator.tangent.reverse()).until(1, Interpolator.linear(shootCornerSegment3Start, shootCornerSegment3End).reverse()));
+        return Paths.line(intakeCorner, shootCorner).heading(Interpolator.piecewise().until(0.0944, Interpolator.constant(shootCornerSegment1Heading)).until(0.5472, Interpolator.tangent.reverse()).until(1, Interpolator.linear(shootCornerSegment3Start, shootCornerSegment3End)));
     }
 
     public Path intakeFlower() {
@@ -248,6 +247,6 @@ public class Itkan extends LinearOpMode {
     }
 
     public Path park() {
-        return Paths.curve(shootFlower2, parkControl1, park).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(parkSegment1Start, parkSegment1End)).until(1, Interpolator.constant(parkSegment2Heading)));
+        return Paths.curve(shootFlower2, parkControl1, park).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(shootFlower2, parkSegment1End)).until(1, Interpolator.constant(parkSegment2Heading)));
     }
 }
