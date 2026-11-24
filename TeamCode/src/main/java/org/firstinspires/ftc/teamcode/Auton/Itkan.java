@@ -36,7 +36,7 @@ public class Itkan extends LinearOpMode {
     public static double flowerPickupMs = 1000;
     public static double rampRaiseDelayMs = 500;
     public static double spinupTimeoutMs = 2000;
-    public static double feedMs = 1500;
+    public static double feedMs = 700;
 
     private Follower follower;
     private Intake intake;
@@ -48,40 +48,48 @@ public class Itkan extends LinearOpMode {
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose start = poseFactory.of(90.6068, 133.3487, 90);
-    private final Pose intakeCorner = poseFactory.of(133.2899, 133.1771, 0);
-    private final Pose shootCorner = poseFactory.of(104.7984, 31.605, -131);
-    private final Pose shootCornerSegment1Heading = poseFactory.of(104.7984, 31.605, 0);
-    private final Pose shootCornerSegment3Start = poseFactory.of(104.7984, 31.605, 74.3309);
-    private final Pose shootCornerSegment3End = poseFactory.of(104.7984, 31.605, 229);
-    private final Pose intakeFlowerStart = poseFactory.of(104.7984, 31.605, 229);
-    private final Pose intakeFlower = poseFactory.of(94.4811, 11.3786, 270);
-    private final Pose intakeFlowerControl1 = poseFactory.of(95.617, 27.2297, 0);
-    private final Pose shootFlowerStart = poseFactory.of(94.4811, 11.3786, 270);
-    private final Pose shootFlower = poseFactory.of(104.4123, 31.8851, 229);
-    private final Pose shootFlowerControl1 = poseFactory.of(96.1285, 27.2992, 0);
-    private final Pose intakeRobot = poseFactory.of(132.2743, 70.3163, -90);
-    private final Pose intakeRobotControl1 = poseFactory.of(113.6857, 83.6364, 0);
-    private final Pose intakeRobotSegment1Start = poseFactory.of(132.2743, 70.3163, 229);
-    private final Pose intakeRobotSegment1End = poseFactory.of(132.2743, 70.3163, 270);
-    private final Pose intakeRobotSegment2Heading = poseFactory.of(132.2743, 70.3163, 270);
-    private final Pose shootRobot = poseFactory.of(103.4501, 110.3294, -34);
-    private final Pose shootRobotSegment1Heading = poseFactory.of(103.4501, 110.3294, 270);
-    private final Pose shootRobotSegment3Start = poseFactory.of(103.4501, 110.3294, -54.2321);
-    private final Pose shootRobotSegment3End = poseFactory.of(103.4501, 110.3294, 326);
-    private final Pose intakeFlower2 = poseFactory.of(127.6684, 94.6302, 360);
+    private final Pose start = poseFactory.of(90.6068, 133.3487, 0);
+    private final Pose intakeCorner = poseFactory.of(129.7611, 133.5026, 0);
+    private final Pose shootCorner = poseFactory.of(103.9551, 20.5566, 220);
+    private final Pose shootCornerSegment1Heading = poseFactory.of(103.9551, 20.5566, 0);
+    private final Pose shootCornerSegment3Start = poseFactory.of(103.9551, 20.5566, 77.1299);
+    private final Pose shootCornerSegment3End = poseFactory.of(103.9551, 20.5566, 220);
+    private final Pose intakeFlowerStart = poseFactory.of(103.9551, 20.5566, 220);
+    private final Pose intakeFlower = poseFactory.of(95.3641, 14.84, 270);
+    private final Pose intakeFlowerControl1 = poseFactory.of(84.0847, 46.7463, 0);
+    private final Pose shootFlowerStart = poseFactory.of(95.3641, 14.84, 270);
+    private final Pose shootFlower = poseFactory.of(103.7369, 19.6769, 220);
+    private final Pose shootFlowerControl1 = poseFactory.of(84.1773, 46.468, 0);
+    private final Pose intakeRobot = poseFactory.of(133.4305, 70.5568, -90);
+    private final Pose intakeRobotControl1 = poseFactory.of(121.1413, 109.1145, 0);
+    private final Pose intakeRobotSegment1Start = poseFactory.of(133.4305, 70.5568, 229);
+    private final Pose intakeRobotSegment1End = poseFactory.of(133.4305, 70.5568, 270);
+    private final Pose intakeRobotSegment2Heading = poseFactory.of(133.4305, 70.5568, 270);
+    private final Pose shootRobot = poseFactory.of(96.3359, 118.5073, -13);
+    private final Pose shootRobotSegment1Heading = poseFactory.of(96.3359, 118.5073, 270);
+    private final Pose shootRobotSegment3Start = poseFactory.of(96.3359, 118.5073, -52.2744);
+    private final Pose shootRobotSegment3End = poseFactory.of(96.3359, 118.5073, 347);
+    private final Pose intakeFlower2 = poseFactory.of(122.9274, 94.2608, 360);
     private final Pose intakeFlower2Control1 = poseFactory.of(121.9746, 94.7202, 0);
-    private final Pose intakeFlower2Segment1Start = poseFactory.of(127.6684, 94.6302, 326);
-    private final Pose intakeFlower2Segment1End = poseFactory.of(127.6684, 94.6302, 0);
-    private final Pose shootFlower2Start = poseFactory.of(127.6684, 94.6302, 0);
-    private final Pose shootFlower2 = poseFactory.of(102.9999, 110.1397, 326);
+    private final Pose intakeFlower2Segment1Start = poseFactory.of(122.9274, 94.2608, 347);
+    private final Pose intakeFlower2Segment1End = poseFactory.of(122.9274, 94.2608, 0);
+    private final Pose shootFlower2Start = poseFactory.of(122.9274, 94.2608, 0);
+    private final Pose shootFlower2 = poseFactory.of(96.4505, 118.1797, 347);
     private final Pose park = poseFactory.of(132.8863, 37.7609, -90);
     private final Pose parkControl1 = poseFactory.of(132.2831, 86.7698, 0);
+    private final Pose parkSegment1Start = poseFactory.of(132.8863, 37.7609, 347);
     private final Pose parkSegment1End = poseFactory.of(132.8863, 37.7609, 270);
     private final Pose parkSegment2Heading = poseFactory.of(132.8863, 37.7609, 270);
-
+    private final Pose point10 = poseFactory.of(112.8889, 103.7576, 106.8571);
     public Command autoRoutine() {
         return sequential(
+                instant(() -> {
+                    stage = "Preload - spin up";
+                    follower.hold(start);
+                    startFlywheels();
+                }),
+
+                feedWhenReady("Preload"),
                 collectAndScore("Corner", intakeCorner(), shootCorner(), false),
                 collectAndScore("Audience flower", intakeFlower(), shootFlower(), true),
                 collectAndScore("Robot pickup", intakeRobot(), shootRobot(), false),
@@ -118,24 +126,31 @@ public class Itkan extends LinearOpMode {
                 waitMs(flower ? flowerPickupMs : pickupMs),
                 instant(() -> {
                     stage = location + " - return to score";
-                    intake.stop();
-                    pollenWheel.runAtRPM(pollenRPM);
-                    nectarWheel.runAtRPM(nectarRPM);
+                    //intake.stop();
+                    startFlywheels();
                 }),
                 returnDrive,
+                feedWhenReady(location)
+        );
+    }
+
+    private void startFlywheels() {
+        pollenWheel.runAtRPM(pollenRPM);
+        nectarWheel.runAtRPM(nectarRPM);
+    }
+
+    private Command feedWhenReady(String location) {
+        return sequential(
                 waitMs(spinupTimeoutMs).until(pollenWheel::isAtSpeed),
                 instant(() -> {
                     stage = location + " - feed";
                     transfer.pollenRelease();
                     transfer.on();
                     intake.intake();
-                }),
-                waitMs(feedMs),
-                instant(() -> {
-                    transfer.pollenBlock();
-                    transfer.off();
-                    intake.stop();
                 })
+
+
+
         );
     }
 
@@ -247,6 +262,10 @@ public class Itkan extends LinearOpMode {
     }
 
     public Path park() {
-        return Paths.curve(shootFlower2, parkControl1, park).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(shootFlower2, parkSegment1End)).until(1, Interpolator.constant(parkSegment2Heading)));
+        return Paths.curve(shootFlower2, parkControl1, park).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(parkSegment1Start, parkSegment1End)).until(1, Interpolator.constant(parkSegment2Heading)));
+    }
+
+    public Path path10() {
+        return Paths.line(park, point10).tangent();
     }
 }

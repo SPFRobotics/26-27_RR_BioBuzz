@@ -141,11 +141,6 @@ public class RedTwoTip extends LinearOpMode {
         return sequential(
                 instant(() -> follower.hold(start)),
                 shoot("Shoot 4 preload", preloadShootMs),
-                step("intake Off", () -> {
-                    intake.stop();
-                    waitMs(500);
-                }),
-                shoot("Shoot 4 preload", 1500),
                 step("Intake corner", () -> {
                     transfer.pollenBlock();
                     intake.intake();
@@ -160,11 +155,6 @@ public class RedTwoTip extends LinearOpMode {
                 }),
                 followToEnd(travelThroughHive()),
                 shoot("Shoot corner collection", cornerShootMs),
-                step("intake Off", () -> {
-                    intake.stop();
-                    waitMs(500);
-                }),
-                shoot("Shoot 4 preload", 1500),
                 step("Run to flower", () -> intake.intake()),
                 parallel(
                         followToEnd(runToFlower()),
@@ -179,12 +169,7 @@ public class RedTwoTip extends LinearOpMode {
                 returnToShootingSpot(returnFromFlower()),
                 instant(() -> intake.stop()),
                 shoot("Shoot flower collection", flowerShootMs),
-                step("intake Off", () -> {
-                    intake.stop();
-                    waitMs(500);
-                }),
-                shoot("Shoot 4 preload", 1500),
-                step("Park", () -> { }),
+                step("Park", intake::stop),
                 followToEnd(park()),
                 step("Complete", this::stopMechanisms)
         );

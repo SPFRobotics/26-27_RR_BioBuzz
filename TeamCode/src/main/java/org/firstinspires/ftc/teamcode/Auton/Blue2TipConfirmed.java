@@ -162,8 +162,6 @@ public class Blue2TipConfirmed extends LinearOpMode {
         return sequential(
                 instant(() -> follower.hold(start)),
                 shoot("Shoot 4 preload", preloadShootMs),
-                step("intake Off", intake::stop),
-                shoot("Shoot 4 preload", 1500),
                 step("Intake corner", () -> {
                     transfer.pollenBlock();
                     intake.intake();
@@ -176,11 +174,7 @@ public class Blue2TipConfirmed extends LinearOpMode {
                 }),
                 followToEnd(travelThroughHive()),
                 shoot("Shoot corner collection", cornerShootMs),
-                step("intake Off", intake::stop),
-                shoot("Shoot 4 preload", 1500),
                 collectAndShootFlower("flower", runToFlower(), returnFromFlower()),
-                step("intake Off", intake::stop),
-                shoot("Shoot 4 preload", 1500),
                 collectAndShootFlower("second flower", intakeFlower2(), returnFromFlower2()),
                 step("Park", this::stopMechanisms),
                 followToEnd(park()),
