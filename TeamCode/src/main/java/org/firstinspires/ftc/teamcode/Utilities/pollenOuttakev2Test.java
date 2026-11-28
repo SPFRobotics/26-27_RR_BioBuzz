@@ -20,7 +20,7 @@ public class pollenOuttakev2Test extends OpMode {
 
     public void loop() {
 
-        pollen.runAtRPM(4000);
+        pollen.runAtRPM(-2800);
 
         telemetry.addData("Pollen RPM", pollen.getRPM());
 

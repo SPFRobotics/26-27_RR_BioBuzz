@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class PushbackRamp {
     public static double downPosition = 0.61;
 
-    public static double upPosition = 0.145;
+    public static double upPosition = 0.177;
 
    // public static double floatPos = 0.4;
 
