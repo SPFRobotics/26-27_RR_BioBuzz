@@ -68,10 +68,8 @@ public class TurretTest {
     }
 
     @Test public void nectarSitsBackLeftAndPollenBackRightOfTheRobotCenter() {
-        // Facing +x, back is -x and left is +y. From (89.25, 120) both turret centers land on
-        // the blue hive's centerline (x = 84.75): nectar at y = 124.5, pollen at y = 115.5.
-        // The far cell is aimed at y = 87.2, straight out the robot's right side.
-        Pose robot = pose(89.25, 120, 0);
+        // At heading zero both turret pivots share the blue opening's x = 84.75.
+        Pose robot = pose(89.26, 120, 0);
         Fixture nectar = Fixture.nectar(Alliance.BLUE);
         Fixture pollen = Fixture.pollen(Alliance.BLUE);
         nectar.turret.trackHive();
@@ -80,14 +78,13 @@ public class TurretTest {
         pollen.update(robot);
         assertEquals(-90, nectar.turret.getTargetAngleDegrees(), 1e-9);
         assertEquals(-90, pollen.turret.getTargetAngleDegrees(), 1e-9);
-        assertEquals(37.3, nectar.turret.getDistanceToTarget(), 1e-9);
-        assertEquals(28.3, pollen.turret.getDistanceToTarget(), 1e-9);
+        assertEquals(35.74, nectar.turret.getDistanceToTarget(), 1e-9);
+        assertEquals(27.30, pollen.turret.getDistanceToTarget(), 1e-9);
     }
 
     @Test public void turretOffsetsRotateWithTheRobot() {
-        // Facing -x, back is +x and left is -y: nectar at (84.75, 124.5), pollen at (84.75, 133.5).
-        // The far cell is now out the robot's left side.
-        Pose robot = pose(80.25, 129, 180);
+        // Facing -x puts both turret pivots on the blue opening's centerline.
+        Pose robot = pose(80.24, 129, 180);
         Fixture nectar = Fixture.nectar(Alliance.BLUE);
         Fixture pollen = Fixture.pollen(Alliance.BLUE);
         nectar.turret.trackHive();
@@ -96,26 +93,25 @@ public class TurretTest {
         pollen.update(robot);
         assertEquals(90, nectar.turret.getTargetAngleDegrees(), 1e-9);
         assertEquals(90, pollen.turret.getTargetAngleDegrees(), 1e-9);
-        assertEquals(37.3, nectar.turret.getDistanceToTarget(), 1e-9);
-        assertEquals(46.3, pollen.turret.getDistanceToTarget(), 1e-9);
+        assertEquals(36.36, nectar.turret.getDistanceToTarget(), 1e-9);
+        assertEquals(44.80, pollen.turret.getDistanceToTarget(), 1e-9);
 
-        // Facing +y, back is -y and left is -x: nectar at (95.5, 87.2), pollen at (104.5, 87.2),
-        // level with the far cell, which is again out the robot's left side.
-        robot = pose(100, 91.7, 90);
+        // Facing +y puts both pivots at the opening's y = 88.45.
+        robot = pose(100, 92.96, 90);
         nectar.update(robot);
         pollen.update(robot);
         assertEquals(90, nectar.turret.getTargetAngleDegrees(), 1e-9);
         assertEquals(90, pollen.turret.getTargetAngleDegrees(), 1e-9);
-        assertEquals(10.75, nectar.turret.getDistanceToTarget(), 1e-9);
-        assertEquals(19.75, pollen.turret.getDistanceToTarget(), 1e-9);
+        assertEquals(11.06, nectar.turret.getDistanceToTarget(), 1e-9);
+        assertEquals(19.50, pollen.turret.getDistanceToTarget(), 1e-9);
     }
 
     @Test public void aimsAtTheAllianceHiveCellOnTheRobotsSideOfTheField() {
         // The alliance picks the hive even from the other alliance's half of the field.
-        assertTarget(Alliance.RED, pose(100, 30, 0), 59.25, 56.8);
-        assertTarget(Alliance.RED, pose(40, 110, 0), 59.25, 87.2);
-        assertTarget(Alliance.BLUE, pose(40, 30, 0), 84.75, 56.8);
-        assertTarget(Alliance.BLUE, pose(100, 110, 0), 84.75, 87.2);
+        assertTarget(Alliance.RED, pose(100, 30, 0), 59.25, 55.55);
+        assertTarget(Alliance.RED, pose(40, 110, 0), 59.25, 88.45);
+        assertTarget(Alliance.BLUE, pose(40, 30, 0), 84.75, 55.55);
+        assertTarget(Alliance.BLUE, pose(100, 110, 0), 84.75, 88.45);
     }
 
     @Test public void launchingAlongTheAimAngleReachesTheTargetFromAnywhere() {
@@ -133,8 +129,8 @@ public class TurretTest {
                                     + f.params.leftOffsetInches * Math.cos(h);
                             double launch = h + Math.toRadians(f.turret.getTargetAngleDegrees());
                             double distance = f.turret.getDistanceToTarget();
-                            assertEquals(f.turret.getTargetX(), turretX + distance * Math.cos(launch), 1e-6);
-                            assertEquals(f.turret.getTargetY(), turretY + distance * Math.sin(launch), 1e-6);
+                            assertEquals(alliance == Alliance.RED ? 59.25 : 84.75, turretX + distance * Math.cos(launch), 1e-6);
+                            assertEquals(y < 72 ? 55.55 : 88.45, turretY + distance * Math.sin(launch), 1e-6);
                         }
                     }
                 }
@@ -145,10 +141,10 @@ public class TurretTest {
     @Test public void theTwoTipAutoShootingPosesAimOutTheRobotsRightSide() {
         // The fixed launchers fire out the robot's right side, so each pose the TwoTip autos
         // shoot from already points that side at the hive cell the turret should pick.
-        assertShootsRight(Alliance.BLUE, pose(89.8739, 132.3744, 0), 84.75, 87.2);
-        assertShootsRight(Alliance.BLUE, pose(82, 11.4285, 180), 84.75, 56.8);
-        assertShootsRight(Alliance.RED, pose(54.1261, 11.6256, 180), 59.25, 56.8);
-        assertShootsRight(Alliance.RED, pose(62, 132.5715, 0), 59.25, 87.2);
+        assertShootsRight(Alliance.BLUE, pose(89.8739, 132.3744, 0), 84.75, 88.45);
+        assertShootsRight(Alliance.BLUE, pose(82, 11.4285, 180), 84.75, 55.55);
+        assertShootsRight(Alliance.RED, pose(54.1261, 11.6256, 180), 59.25, 55.55);
+        assertShootsRight(Alliance.RED, pose(62, 132.5715, 0), 59.25, 88.45);
     }
 
     private static void assertShootsRight(Alliance alliance, Pose robot, double x, double y) {
@@ -164,15 +160,35 @@ public class TurretTest {
     @Test public void targetCellOnlyChangesOnceTheRobotIsClearlyPastThePivotLine() {
         Fixture f = Fixture.nectar(Alliance.BLUE);
         f.update(pose(100, 100, 0));
-        assertEquals(87.2, f.turret.getTargetY(), 1e-9);
+        assertEquals(88.45, f.turret.getTargetY(), 1e-9);
         f.update(pose(100, 70, 0));
-        assertEquals(87.2, f.turret.getTargetY(), 1e-9);
+        assertEquals(88.45, f.turret.getTargetY(), 1e-9);
         f.update(pose(100, 68.9, 0));
-        assertEquals(56.8, f.turret.getTargetY(), 1e-9);
+        assertEquals(55.55, f.turret.getTargetY(), 1e-9);
         f.update(pose(100, 74, 0));
-        assertEquals(56.8, f.turret.getTargetY(), 1e-9);
+        assertEquals(55.55, f.turret.getTargetY(), 1e-9);
         f.update(pose(100, 75.1, 0));
-        assertEquals(87.2, f.turret.getTargetY(), 1e-9);
+        assertEquals(88.45, f.turret.getTargetY(), 1e-9);
+    }
+
+    @Test public void trackingTheRaisedEntranceFollowsTipsInsteadOfRobotPosition() {
+        Fixture f = Fixture.nectar(Alliance.RED);
+        f.turret.trackHive(Turret.Cell.FAR);
+        f.update(pose(50, 120, 0));
+        assertEquals(88.45, f.turret.getTargetY(), 1e-9);
+        Pose acrossMidfield = pose(50, 20, 135);
+        f.update(acrossMidfield);
+        assertEquals(88.45, f.turret.getTargetY(), 1e-9);
+        double previousAim = f.turret.getTargetAngleDegrees();
+
+        f.turret.trackHive(Turret.Cell.AUDIENCE);
+        f.update(acrossMidfield);
+        assertEquals(55.55, f.turret.getTargetY(), 1e-9);
+        assertNotEquals(previousAim, f.turret.getTargetAngleDegrees(), 1e-9);
+
+        f.turret.trackHive();
+        f.update(pose(50, 120, 0));
+        assertEquals(88.45, f.turret.getTargetY(), 1e-9);
     }
 
     @Test public void withoutAnAllianceItAimsAtTheHiveOnTheRobotsHalf() {
@@ -199,12 +215,12 @@ public class TurretTest {
         assertFalse(f.turret.isAimed());
         assertTrue(Double.isNaN(f.turret.getTargetAngleDegrees()));
         // The distance is still live, so the flywheels can be set up before the turret moves.
-        assertEquals(Math.hypot(84.75 - 95.5, 87.2 - 114.5), f.turret.getDistanceToTarget(), 1e-9);
+        assertEquals(Math.hypot(84.75 - 95.49, 88.45 - 114.19), f.turret.getDistanceToTarget(), 1e-9);
     }
 
     @Test public void turnsToTheHiveAndStopsOnceAimed() {
         Fixture f = Fixture.nectar(Alliance.BLUE);
-        Pose robot = pose(89.25, 120, 0);
+        Pose robot = pose(89.26, 120, 0);
         f.turret.trackHive();
         assertFalse(f.turret.isAimed());
         f.update(robot);
@@ -281,7 +297,7 @@ public class TurretTest {
 
     @Test public void switchingFromAHeldAngleToTheHiveStartsAFreshAim() {
         Fixture f = Fixture.nectar(Alliance.BLUE);
-        Pose robot = pose(89.25, 120, 0);
+        Pose robot = pose(89.26, 120, 0);
         f.turret.holdAngle(45);
         f.drive(robot, 100);
         assertTrue(f.turret.isAimed());
@@ -481,11 +497,11 @@ public class TurretTest {
         f.update(pose(100, 100, 0));
         f.update(pose(100, 69.4, 0));
         f.update(pose(100, 69.2, 0));
-        assertEquals(87.2, f.turret.getTargetY(), 1e-9);
+        assertEquals(88.45, f.turret.getTargetY(), 1e-9);
         assertTrue(f.power1 != 0);
         // Crossing the hysteresis line swings the aim by more than 100 degrees in one loop.
         f.update(pose(100, 68.9, 0));
-        assertEquals(56.8, f.turret.getTargetY(), 1e-9);
+        assertEquals(55.55, f.turret.getTargetY(), 1e-9);
         assertEquals(0, f.power1, 0);
     }
 
@@ -493,7 +509,7 @@ public class TurretTest {
         Fixture f = Fixture.nectar(Alliance.BLUE);
         f.params.aimTrimDegrees = 3;
         f.turret.trackHive();
-        f.update(pose(89.25, 120, 0));
+        f.update(pose(89.26, 120, 0));
         assertEquals(-87, f.turret.getTargetAngleDegrees(), 1e-9);
     }
 

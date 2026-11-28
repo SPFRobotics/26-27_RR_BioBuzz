@@ -38,9 +38,9 @@ public class Blue2TipConfirmed extends LinearOpMode {
     public static double pollenRPM = 2700;
     public static double nectarRPM = -6000;
     public static double flywheelSpinupTimeoutMs = 2000;
-    public static double preloadShootMs = 2000;
-    public static double cornerShootMs = 2000;
-    public static double flowerShootMs = 2000;
+    public static double preloadShootMs = 900;
+    public static double cornerShootMs = 900;
+    public static double flowerShootMs = 900;
     public static double flowerIntakeMs = 2000;
     // Distance to either side of the flower intake pose, in robot-relative inches.
     public static double flowerStrafeInches = 1.5;

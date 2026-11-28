@@ -50,11 +50,15 @@ public final class Turret {
 
     // Pedro field inches; hives pivot at y = 72.
     public static double hiveOffsetInches = 12.75;
-    public static double cellAimOffsetInches = 15.2;
+    // Plan-view distance to the raised opening's area centroid, measured on the front
+    // face of the am-5866 goal rib in Field3d_20262027FTCFieldV1 (inches).
+    public static double cellAimOffsetInches = 16.45;
     public static double sideHysteresisInches = 3.0;
 
     private static final double FIELD_CENTER = 72.0;
     private static final double ENCODER_TICKS_PER_REV = 8192.0;
+
+    public enum Cell { AUDIENCE, FAR }
 
     private enum Mode { IDLE, TRACK_HIVE, HOLD_ANGLE }
 
@@ -70,6 +74,7 @@ public final class Turret {
     private double holdDegrees;
     private int hiveSide;
     private int cellSide;
+    private Cell raisedCell;
     private double targetX = Double.NaN;
     private double targetY = Double.NaN;
     private double distanceInches = Double.NaN;
@@ -138,7 +143,14 @@ public final class Turret {
         clearTarget();
     }
 
+    /** Assumes the cell on the robot's side is raised. */
     public void trackHive() {
+        trackHive(null);
+    }
+
+    /** Tracks the specified raised cell across midfield. Call again when the hive tips. */
+    public void trackHive(Cell raisedCell) {
+        this.raisedCell = raisedCell;
         if (mode != Mode.TRACK_HIVE) clearTarget();
         mode = Mode.TRACK_HIVE;
     }
@@ -203,8 +215,8 @@ public final class Turret {
         // Unknown alliance uses the robot's half of the field.
         hiveSide = alliance == Alliance.RED ? -1
                 : alliance == Alliance.BLUE ? 1 : sideOf(robot.x(), hiveSide);
-        // Aim at the cell on the robot's side.
-        cellSide = sideOf(robot.y(), cellSide);
+        cellSide = raisedCell == null ? sideOf(robot.y(), cellSide)
+                : raisedCell == Cell.AUDIENCE ? -1 : 1;
         // Target switches must not count as motion.
         if (hiveSide != previousHive || cellSide != previousCell) hasPrevious = false;
         targetX = FIELD_CENTER + hiveSide * hiveOffsetInches;
