@@ -167,7 +167,7 @@ public class Blue2TipConfirmed extends LinearOpMode {
                     intake.intake();
                 }),
                 followToEnd(intakeCorner()),
-                waitMs(500),
+                waitMs(250),
                 step("Travel through hive", () -> {
                     transfer.pollenBlock();
                     startFlywheels();
